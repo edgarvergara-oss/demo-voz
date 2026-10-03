@@ -113,11 +113,20 @@ const SPRINTS = [
   'Sprint 4 Q4 2026', 'Sprint 5 Q4 2026'
 ];
 
+const CELULAS = [
+  'Seguros - Aseguramiento', 'Seguros - Accesos y clientes', 'TI - Gobierno y Arquitectura',
+  'Transformación Digital', 'Empresarial - Gestión de Riesgos',
+  'Empresarial - Transformación Tecnológica', 'SOFKA'
+];
+
 const PREGUNTAS = [
   { id: 'nombre', tipo: 'corto', corta: 'Nombre',
     texto: '¿Cuál es tu nombre?',
     ayuda: 'Escríbelo completo, como aparece en el equipo.' },
-  { id: 'sprint', tipo: 'lista', corta: 'Sprint',
+  { id: 'equipo', tipo: 'lista', corta: 'Célula', opciones: CELULAS,
+    texto: '¿En qué célula trabajas?',
+    ayuda: 'Es la que aparece como tu dominio.' },
+  { id: 'sprint', tipo: 'lista', corta: 'Sprint', opciones: SPRINTS,
     texto: '¿De qué sprint vas a reportar?',
     ayuda: 'Elige el sprint que acaba de cerrar.' },
   { id: 'hu_comp', tipo: 'numero', corta: 'HU comprometidas',
@@ -205,9 +214,9 @@ function pantallaPregunta(p) {
   let campo = '';
 
   if (p.tipo === 'lista') {
-    campo = `<label class="etiqueta" for="campo">Sprint</label>
-      <select id="campo"><option value="">Elige un sprint</option>
-      ${SPRINTS.map(s => `<option ${s === valor ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+    campo = `<label class="etiqueta" for="campo">${esc(p.corta)}</label>
+      <select id="campo"><option value="">Elige una opción</option>
+      ${p.opciones.map(o => `<option ${o === valor ? 'selected' : ''}>${esc(o)}</option>`).join('')}
       </select>`;
   } else if (p.tipo === 'corto') {
     campo = `<label class="etiqueta" for="campo">Nombre completo</label>
@@ -321,7 +330,7 @@ function avanzar(p) {
     if (!bruto) { err.textContent = 'Escribe tu nombre para continuar.'; return; }
     respuestas[p.id] = bruto;
   } else if (p.tipo === 'lista') {
-    if (!bruto) { err.textContent = 'Elige un sprint para continuar.'; return; }
+    if (!bruto) { err.textContent = 'Elige una opción para continuar.'; return; }
     respuestas[p.id] = bruto;
   } else if (p.tipo === 'numero') {
     if (bruto === '') { err.textContent = 'Dicta o escribe un número para continuar.'; return; }
