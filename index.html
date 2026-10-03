@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --beige: #EFEAE4;
+    --papel: #FBF9F6;
+    --naranja: #FF7E08;
+    --naranja-texto: #A84A00;
+    --tinta: #000000;
+    --gris: #6B655E;
+    --linea: #D9D2C9;
+    --aviso-fondo: #FFF1E0;
+    --error: #B42318;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--beige);
+    color: var(--tinta);
+    font: 16px/1.5 Inter, system-ui, sans-serif;
+  }
+  .marco { max-width: 600px; margin: 0 auto; padding: 32px 20px 48px; }
+  .marca { font: 600 18px Archivo, sans-serif; letter-spacing: -0.01em; }
+  .marca span { color: var(--naranja); }
+
+  .progreso { display: flex; align-items: center; gap: 12px; margin: 28px 0 10px; color: var(--gris); font-size: 14px; }
+  .barra { flex: 1; height: 4px; background: var(--linea); border-radius: 2px; overflow: hidden; }
+  .barra i { display: block; height: 100%; background: var(--naranja); transition: width .3s; }
+
+  h1 { font: 600 clamp(26px, 5vw, 34px)/1.15 Archivo, sans-serif; letter-spacing: -0.02em; margin: 6px 0 6px; }
+  .ayuda { color: var(--gris); margin: 0 0 24px; }
+
+  .tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: 16px; padding: 24px; }
+
+  .mic { display: flex; align-items: center; gap: 16px; }
+  .btn-mic {
+    width: 64px; height: 64px; flex: none; border: 0; border-radius: 50%;
+    background: var(--naranja); color: #fff; cursor: pointer; position: relative;
+    display: grid; place-items: center;
+  }
+  .btn-mic svg { width: 26px; height: 26px; }
+  .btn-mic.escuchando { background: var(--tinta); }
+  .btn-mic.escuchando::after {
+    content: ""; position: absolute; inset: -6px; border-radius: 50%;
+    border: 2px solid var(--naranja); animation: pulso 1.2s ease-out infinite;
+  }
+  @keyframes pulso { from { transform: scale(1); opacity: .9; } to { transform: scale(1.3); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .btn-mic.escuchando::after { animation: none; } }
+  .estado { color: var(--gris); font-size: 14px; }
+
+  .transcripcion { min-height: 24px; margin-top: 16px; color: var(--gris); font-style: italic; }
+
+  .campo-num {
+    font: 600 56px/1 Archivo, sans-serif; width: 100%; padding: 4px 0;
+    border: 0; border-bottom: 2px solid var(--linea); background: transparent; color: var(--tinta);
+  }
+  .campo-num:focus { outline: none; border-bottom-color: var(--naranja); }
+  .etiqueta { display: block; font-size: 14px; color: var(--gris); margin: 20px 0 6px; }
+  select, textarea {
+    width: 100%; font: inherit; padding: 12px; background: #fff;
+    border: 1px solid var(--linea); border-radius: 10px; color: var(--tinta);
+  }
+  textarea { min-height: 140px; resize: vertical; }
+
+  .aviso { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: var(--aviso-fondo); color: var(--naranja-texto); font-size: 14px; }
+  .error { color: var(--error); font-size: 14px; margin-top: 10px; min-height: 20px; }
+
+  .acciones { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+  .pri, .sec { font: 600 16px Inter, sans-serif; padding: 12px 20px; border-radius: 10px; cursor: pointer; }
+  .pri { background: var(--tinta); color: #fff; border: 0; }
+  .pri:disabled { opacity: .5; cursor: default; }
+  .sec { background: transparent; color: var(--tinta); border: 1px solid var(--linea); }
+
+  button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+    outline: 3px solid var(--naranja); outline-offset: 2px;
+  }
+
+  .resumen { list-style: none; margin: 0; padding: 0; }
+  .resumen li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+  .resumen li:last-child { border-bottom: 0; }
+  .resumen .q { color: var(--gris); font-size: 14px; }
+  .resumen .v { font: 600 22px Archivo, sans-serif; word-break: break-word; }
+  .resumen .v.texto { font: 400 15px/1.5 Inter, sans-serif; }
+  .resumen .aprox { display: block; font-size: 13px; color: var(--naranja-texto); }
+  .cambiar { background: none; border: 0; padding: 0; color: var(--naranja-texto); font: 500 14px Inter, sans-serif; text-decoration: underline; cursor: pointer; flex: none; }
+
+  .vista-previa { margin-top: 20px; font-size: 13px; color: var(--gris); }
+</style>
+</head>
+<body>
+<main class="marco">
+  <div class="marca">sofka<span>_</span> · registro del sprint</div>
+  <div id="app" aria-live="polite"></div>
+</main>
+
+<script>
+/* ---------------------------------------------------------------- configuración */
+
+/* Pega aquí la URL de tu aplicación web de Apps Script (la que termina en /exec). */
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbybmLaDe3oMECKpP3ewOY3foIxBp2PX_fxsF8SgcoohRuat1LxbXX-UT-ovF4R7NSzL/exec';
+
+/* ---------------------------------------------------------------- datos */
+
+const SPRINTS = [
+  'Sprint 3 Q3 2026', 'Sprint 4 Q3 2026', 'Sprint 5 Q3 2026',
+  'Sprint 1 Q4 2026', 'Sprint 2 Q4 2026', 'Sprint 3 Q4 2026',
+  'Sprint 4 Q4 2026', 'Sprint 5 Q4 2026'
+];
+
+const PREGUNTAS = [
+  { id: 'nombre', tipo: 'corto', corta: 'Nombre',
+    texto: '¿Cuál es tu nombre?',
+    ayuda: 'Escríbelo completo, como aparece en el equipo.' },
+  { id: 'sprint', tipo: 'lista', corta: 'Sprint',
+    texto: '¿De qué sprint vas a reportar?',
+    ayuda: 'Elige el sprint que acaba de cerrar.' },
+  { id: 'hu_comp', tipo: 'numero', corta: 'HU comprometidas',
+    texto: '¿Cuántas historias de usuario comprometiste en el sprint?',
+    ayuda: 'Di solo el número, por ejemplo “catorce”.' },
+  { id: 'hu_cert', tipo: 'numero', corta: 'HU certificadas', max: 'hu_comp',
+    texto: '¿Cuántas de esas quedaron certificadas?',
+    ayuda: 'No puede ser mayor que las que comprometiste.' },
+  { id: 'bugs_rep', tipo: 'numero', corta: 'Bugs reportados',
+    texto: '¿Cuántos bugs reportaste?',
+    ayuda: 'Cuéntalos todos, aunque después se hayan descartado.' },
+  { id: 'bugs_desc', tipo: 'numero', corta: 'Bugs descartados', max: 'bugs_rep',
+    texto: '¿Cuántos de esos se descartaron?',
+    ayuda: 'Los que resultaron no ser bugs.' },
+  { id: 'comentario', tipo: 'texto', corta: 'Comentario', opcional: true,
+    texto: '¿Qué se trabó en el sprint o qué quieres conversar con tu líder?',
+    ayuda: 'Habla con naturalidad. Esta es opcional.' }
+];
+
+/* ---------------------------------------------------------------- estado */
+
+let paso = 0;
+let respuestas = {};
+let aproximadas = new Set();
+let volverARevision = false;
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+let escuchando = false;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------------------------------------------------------------- voz → número */
+
+const PALABRAS = {
+  cero: 0, ninguno: 0, ninguna: 0, nada: 0,
+  un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7,
+  ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15,
+  dieciseis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19, veinte: 20,
+  veintiuno: 21, veintiun: 21, veintidos: 22, veintitres: 23, veinticuatro: 24,
+  veinticinco: 25, veintiseis: 26, veintisiete: 27, veintiocho: 28, veintinueve: 29,
+  treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70,
+  ochenta: 80, noventa: 90, cien: 100, ciento: 100
+};
+
+function normalizar(t) {
+  return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/** "catorce" → 14, "treinta y cuatro" → 34, "como 12" → 12. Devuelve null si no hay número. */
+function aNumero(texto) {
+  const t = normalizar(texto);
+  const digitos = t.match(/\d+/);
+  if (digitos) return parseInt(digitos[0], 10);
+
+  let total = null;
+  for (const p of t.split(/[^a-zñ]+/)) {
+    if (p in PALABRAS) total = (total || 0) + PALABRAS[p];
+    else if (p === 'y' && total !== null) continue;
+    else if (total !== null) break;
+  }
+  return total;
+}
+
+/** Detecta si la persona dijo un número aproximado: "como catorce", "unos doce"… */
+function esAproximado(texto) {
+  return /\b(como|mas o menos|aproximadamente|creo|unos|unas|alrededor|cerca de|casi)\b/
+    .test(normalizar(texto));
+}
+
+/* ---------------------------------------------------------------- pantallas */
+
+function render() {
+  if (escuchando && rec) rec.stop();
+  if (paso === 'listo') return pantallaListo();
+  if (paso === PREGUNTAS.length) return pantallaRevision();
+  pantallaPregunta(PREGUNTAS[paso]);
+}
+
+function pantallaPregunta(p) {
+  const n = paso + 1;
+  const valor = respuestas[p.id] ?? '';
+  let campo = '';
+
+  if (p.tipo === 'lista') {
+    campo = `<label class="etiqueta" for="campo">Sprint</label>
+      <select id="campo"><option value="">Elige un sprint</option>
+      ${SPRINTS.map(s => `<option ${s === valor ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+      </select>`;
+  } else if (p.tipo === 'corto') {
+    campo = `<label class="etiqueta" for="campo">Nombre completo</label>
+      <input id="campo" type="text" autocomplete="name" value="${esc(valor)}"
+        style="width:100%;font:inherit;padding:12px;background:#fff;border:1px solid var(--linea);border-radius:10px">`;
+  } else if (p.tipo === 'numero') {
+    campo = `<label class="etiqueta" for="campo">Respuesta</label>
+      <input id="campo" class="campo-num" type="number" inputmode="numeric" min="0" step="1" value="${esc(valor)}">`;
+  } else {
+    campo = `<label class="etiqueta" for="campo">Respuesta</label>
+      <textarea id="campo">${esc(valor)}</textarea>`;
+  }
+
+  const conVoz = p.tipo === 'numero' || p.tipo === 'texto';
+  const mic = !conVoz ? '' : SR
+    ? `<div class="mic">
+         <button class="btn-mic" id="btn-mic" aria-label="Dictar respuesta">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+         </button>
+         <span class="estado" id="estado">Toca para dictar</span>
+       </div>
+       <div class="transcripcion" id="transcripcion"></div>`
+    : `<p class="estado">Este navegador no permite dictar. Ábrelo en Chrome o escribe la respuesta.</p>`;
+
+  $('#app').innerHTML = `
+    <div class="progreso"><span>Pregunta ${n} de ${PREGUNTAS.length}</span>
+      <div class="barra"><i style="width:${(paso / PREGUNTAS.length) * 100}%"></i></div></div>
+    <h1>${esc(p.texto)}</h1>
+    <p class="ayuda">${esc(p.ayuda)}</p>
+    <div class="tarjeta">
+      ${mic}
+      ${campo}
+      <div id="aviso"></div>
+      <div class="error" id="error" role="alert"></div>
+    </div>
+    <div class="acciones">
+      <button class="sec" id="atras" ${paso === 0 ? 'style="visibility:hidden"' : ''}>Atrás</button>
+      <button class="pri" id="siguiente">${volverARevision || paso === PREGUNTAS.length - 1 ? 'Revisar respuestas' : 'Siguiente'}</button>
+    </div>`;
+
+  if (aproximadas.has(p.id)) mostrarAviso(p);
+  if (conVoz && SR) $('#btn-mic').onclick = () => dictar(p);
+  $('#atras').onclick = () => { paso--; render(); };
+  $('#siguiente').onclick = () => avanzar(p);
+  $('#campo').addEventListener('input', () => {
+    $('#error').textContent = '';
+    if (aproximadas.delete(p.id)) $('#aviso').innerHTML = '';
+  });
+  if (p.tipo === 'numero' || p.tipo === 'corto') {
+    $('#campo').addEventListener('keydown', e => { if (e.key === 'Enter') avanzar(p); });
+  }
+}
+
+function pantallaRevision() {
+  $('#app').innerHTML = `
+    <div class="progreso"><span>Revisión</span>
+      <div class="barra"><i style="width:100%"></i></div></div>
+    <h1>Revisa antes de enviar</h1>
+    <p class="ayuda">Esto es lo que se va a guardar. Puedes cambiar cualquier respuesta.</p>
+    <div class="tarjeta">
+      <ul class="resumen">
+        ${PREGUNTAS.map((p, i) => {
+          const v = respuestas[p.id];
+          const vacio = v === undefined || v === '';
+          return `<li>
+            <div>
+              <div class="q">${esc(p.corta)}</div>
+              <div class="v ${p.tipo === 'texto' ? 'texto' : ''}">${vacio ? '—' : esc(v)}</div>
+              ${aproximadas.has(p.id) ? '<span class="aprox">Lo dijiste como aproximado</span>' : ''}
+            </div>
+            <button class="cambiar" data-i="${i}">Cambiar</button>
+          </li>`;
+        }).join('')}
+      </ul>
+      <div class="error" id="error" role="alert"></div>
+    </div>
+    <div class="acciones">
+      <button class="sec" id="atras">Atrás</button>
+      <button class="pri" id="enviar">Enviar respuestas</button>
+    </div>
+    ${(typeof google === 'undefined' && !URL_APPS_SCRIPT.startsWith('https://')) ? '<p class="vista-previa">Vista previa: falta pegar la URL de Apps Script, así que las respuestas no se guardan.</p>' : ''}`;
+
+  document.querySelectorAll('.cambiar').forEach(b => b.onclick = () => {
+    paso = Number(b.dataset.i); volverARevision = true; render();
+  });
+  $('#atras').onclick = () => { paso = PREGUNTAS.length - 1; render(); };
+  $('#enviar').onclick = enviar;
+}
+
+function pantallaListo() {
+  $('#app').innerHTML = `
+    <div class="progreso"><span>Listo</span>
+      <div class="barra"><i style="width:100%"></i></div></div>
+    <h1>Respuestas enviadas</h1>
+    <p class="ayuda">Quedaron guardadas en la hoja “Respuestas demo”.</p>
+    <div class="acciones"><span></span>
+      <button class="pri" id="otra">Registrar otro sprint</button></div>`;
+  $('#otra').onclick = () => {
+    paso = 0; respuestas = {}; aproximadas = new Set(); volverARevision = false; render();
+  };
+}
+
+/* ---------------------------------------------------------------- acciones */
+
+function avanzar(p) {
+  const campo = $('#campo');
+  const bruto = campo.value.trim();
+  const err = $('#error');
+
+  if (p.tipo === 'corto') {
+    if (!bruto) { err.textContent = 'Escribe tu nombre para continuar.'; return; }
+    respuestas[p.id] = bruto;
+  } else if (p.tipo === 'lista') {
+    if (!bruto) { err.textContent = 'Elige un sprint para continuar.'; return; }
+    respuestas[p.id] = bruto;
+  } else if (p.tipo === 'numero') {
+    if (bruto === '') { err.textContent = 'Dicta o escribe un número para continuar.'; return; }
+    const n = Number(bruto);
+    if (!Number.isInteger(n) || n < 0) { err.textContent = 'Tiene que ser un número entero, cero o mayor.'; return; }
+    if (p.max && respuestas[p.max] !== undefined && n > respuestas[p.max]) {
+      const ref = PREGUNTAS.find(q => q.id === p.max);
+      err.textContent = `No puede ser mayor que ${ref.corta.toLowerCase()} (${respuestas[p.max]}).`;
+      return;
+    }
+    respuestas[p.id] = n;
+  } else {
+    respuestas[p.id] = bruto;
+  }
+
+  if (volverARevision) { volverARevision = false; paso = PREGUNTAS.length; }
+  else paso++;
+  render();
+}
+
+function dictar(p) {
+  if (escuchando) { rec.stop(); return; }
+
+  rec = new SR();
+  rec.lang = 'es-CO';
+  rec.interimResults = true;
+  rec.continuous = p.tipo === 'texto';
+
+  let final = '';
+  $('#error').textContent = '';
+
+  rec.onstart = () => {
+    escuchando = true;
+    $('#btn-mic').classList.add('escuchando');
+    $('#btn-mic').setAttribute('aria-label', 'Detener dictado');
+    $('#estado').textContent = 'Escuchando… toca de nuevo para detener';
+  };
+
+  rec.onresult = e => {
+    let interino = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t + ' ';
+      else interino += t;
+    }
+    $('#transcripcion').textContent = '“' + (final + interino).trim() + '”';
+    if (p.tipo === 'numero') {
+      const n = aNumero(final + interino);
+      if (n !== null) $('#campo').value = n;
+    }
+  };
+
+  rec.onerror = e => {
+    const mensajes = {
+      'not-allowed': 'El micrófono está bloqueado para esta página. Permítelo desde el ícono de la barra de direcciones, o escribe la respuesta.',
+      'service-not-allowed': 'El micrófono está bloqueado para esta página. Permítelo desde el ícono de la barra de direcciones, o escribe la respuesta.',
+      'no-speech': 'No se escuchó nada. Toca el micrófono e intenta de nuevo.',
+      'audio-capture': 'No se encontró un micrófono conectado. Escribe la respuesta.',
+      'network': 'Se perdió la conexión con el servicio de dictado. Intenta de nuevo o escribe la respuesta.'
+    };
+    $('#error').textContent = mensajes[e.error] || `El dictado se detuvo (${e.error}). Intenta de nuevo o escribe la respuesta.`;
+  };
+
+  rec.onend = () => {
+    escuchando = false;
+    const btn = $('#btn-mic');
+    if (!btn) return;
+    btn.classList.remove('escuchando');
+    btn.setAttribute('aria-label', 'Dictar respuesta');
+    $('#estado').textContent = 'Toca para dictar';
+
+    const dicho = final.trim();
+    if (!dicho) return;
+
+    if (p.tipo === 'numero') {
+      const n = aNumero(dicho);
+      if (n === null) {
+        $('#error').textContent = `No encontré un número en “${dicho}”. Intenta de nuevo o escríbelo.`;
+        return;
+      }
+      $('#campo').value = n;
+      if (esAproximado(dicho)) { aproximadas.add(p.id); mostrarAviso(p); }
+      else { aproximadas.delete(p.id); $('#aviso').innerHTML = ''; }
+    } else if (p.tipo === 'texto') {
+      const ta = $('#campo');
+      ta.value = (ta.value.trim() ? ta.value.trim() + ' ' : '') + dicho;
+    }
+  };
+
+  rec.start();
+}
+
+function mostrarAviso(p) {
+  $('#aviso').innerHTML = `<div class="aviso">Lo dijiste como aproximado. Si es exacto, sigue; si no, revisa el dato antes de enviar, porque aquí se guarda como número exacto.</div>`;
+}
+
+function enviar() {
+  const btn = $('#enviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  const datos = { ...respuestas, aproximadas: [...aproximadas].map(id => PREGUNTAS.find(q => q.id === id).corta) };
+
+  const ok = () => { paso = 'listo'; render(); };
+  const fallo = e => {
+    btn.disabled = false;
+    btn.textContent = 'Enviar respuestas';
+    $('#error').textContent = 'No se pudo guardar: ' + (e && e.message ? e.message : e) + '. Intenta de nuevo.';
+  };
+
+  /* Dentro de Apps Script: llamada directa. */
+  if (typeof google !== 'undefined' && google.script) {
+    google.script.run.withSuccessHandler(ok).withFailureHandler(fallo).guardarRespuesta(datos);
+    return;
+  }
+  /* Fuera de Apps Script (GitHub Pages): se envía a la URL /exec.
+     Con mode 'no-cors' el navegador no deja leer la respuesta, así que
+     "enviado" significa que salió; la prueba real es ver la fila en la hoja. */
+  if (URL_APPS_SCRIPT.startsWith('https://')) {
+    fetch(URL_APPS_SCRIPT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(datos)
+    }).then(ok).catch(fallo);
+    return;
+  }
+  setTimeout(ok, 500);   /* vista previa sin URL configurada: no se guarda */
+}
+
+render();
+</script>
+</body>
+</html>
