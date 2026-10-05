@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro del sprint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -11,6 +11,7 @@
     --beige: #EFEAE4;
     --papel: #FBF9F6;
     --naranja: #FF7E08;
+    --naranja-suave: #FFF3E6;
     --naranja-texto: #A84A00;
     --tinta: #000000;
     --gris: #6B655E;
@@ -28,140 +29,166 @@
   .marco { max-width: 600px; margin: 0 auto; padding: 32px 20px 48px; }
   .marca { font: 600 18px Archivo, sans-serif; letter-spacing: -0.01em; }
   .marca span { color: var(--naranja); }
+  .marca small { font: 500 15px Inter, sans-serif; color: var(--gris); margin-left: 6px; }
 
-  .progreso { display: flex; align-items: center; gap: 12px; margin: 28px 0 10px; color: var(--gris); font-size: 14px; }
+  /* ---- progreso: la sección en curso y cuánto falta ---- */
+  .progreso { display: flex; align-items: center; gap: 12px; margin: 28px 0 12px; font-size: 14px; }
+  .grupo-nombre { color: var(--naranja-texto); font-weight: 600; white-space: nowrap; }
+  .cuenta { color: var(--gris); white-space: nowrap; }
   .barra { flex: 1; height: 4px; background: var(--linea); border-radius: 2px; overflow: hidden; }
   .barra i { display: block; height: 100%; background: var(--naranja); transition: width .3s; }
 
-  h1 { font: 600 clamp(26px, 5vw, 34px)/1.15 Archivo, sans-serif; letter-spacing: -0.02em; margin: 6px 0 6px; }
-  .ayuda { color: var(--gris); margin: 0 0 24px; }
+  h1 { font: 600 clamp(24px, 5vw, 32px)/1.2 Archivo, sans-serif; letter-spacing: -0.02em; margin: 6px 0 8px; }
+  h1:focus { outline: none; }
+  .ayuda { color: var(--gris); margin: 0 0 22px; }
+  .intro { margin: 0 0 18px; padding: 12px 14px; border-left: 3px solid var(--naranja); background: var(--papel); color: var(--gris); font-size: 15px; }
 
-  .tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: 16px; padding: 24px; }
+  .tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: 16px; padding: 22px; }
+  .etiqueta { display: block; font-size: 14px; color: var(--gris); margin: 0 0 8px; }
 
-  .mic { display: flex; align-items: center; gap: 16px; }
+  /* ---- campos: se escribe aquí, y el micrófono va al lado ---- */
+  .entrada { display: flex; align-items: center; gap: 12px; }
+  .entrada input { flex: 1; min-width: 0; }
+  .campo-num {
+    font: 600 48px/1.1 Archivo, sans-serif; padding: 4px 0;
+    border: 0; border-bottom: 2px solid var(--linea); background: transparent; color: var(--tinta);
+  }
+  .campo-num:focus { outline: none; border-bottom-color: var(--naranja); }
+  .unidad { color: var(--gris); font-size: 18px; }
+  .campo-texto, textarea {
+    width: 100%; font: inherit; padding: 12px 14px; background: #fff;
+    border: 1px solid var(--linea); border-radius: 10px; color: var(--tinta);
+  }
+  textarea { min-height: 140px; resize: vertical; display: block; }
+  .pie-texto { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+
   .btn-mic {
-    width: 64px; height: 64px; flex: none; border: 0; border-radius: 50%;
+    width: 52px; height: 52px; flex: none; border: 0; border-radius: 50%;
     background: var(--naranja); color: #fff; cursor: pointer; position: relative;
     display: grid; place-items: center;
   }
-  .btn-mic svg { width: 26px; height: 26px; }
+  .btn-mic svg { width: 24px; height: 24px; }
   .btn-mic.escuchando { background: var(--tinta); }
   .btn-mic.escuchando::after {
     content: ""; position: absolute; inset: -6px; border-radius: 50%;
     border: 2px solid var(--naranja); animation: pulso 1.2s ease-out infinite;
   }
   @keyframes pulso { from { transform: scale(1); opacity: .9; } to { transform: scale(1.3); opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .btn-mic.escuchando::after { animation: none; } }
-  .estado { color: var(--gris); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { .btn-mic.escuchando::after { animation: none; } .barra i { transition: none; } }
 
-  .transcripcion { min-height: 24px; margin-top: 16px; color: var(--gris); font-style: italic; }
+  .como { color: var(--gris); font-size: 14px; margin: 12px 0 0; }
+  .voz { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--linea); }
+  .voz .como { margin: 0; }
+  .escuche { color: var(--gris); font-style: italic; font-size: 15px; margin-top: 10px; min-height: 0; }
+  .escuche:empty { display: none; }
 
-  .campo-num {
-    font: 600 56px/1 Archivo, sans-serif; width: 100%; padding: 4px 0;
-    border: 0; border-bottom: 2px solid var(--linea); background: transparent; color: var(--tinta);
+  /* ---- opciones: una sola (redondas) o varias (cuadradas) ---- */
+  .opciones { display: grid; gap: 10px; }
+  .opciones.sino { grid-template-columns: 1fr 1fr; }
+  .opcion {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    font: 500 16px/1.35 Inter, sans-serif; color: var(--tinta);
+    padding: 14px 16px; background: #fff; border: 1px solid var(--linea); border-radius: 12px; cursor: pointer;
   }
-  .campo-num:focus { outline: none; border-bottom-color: var(--naranja); }
-  .etiqueta { display: block; font-size: 14px; color: var(--gris); margin: 20px 0 6px; }
-  select, textarea {
-    width: 100%; font: inherit; padding: 12px; background: #fff;
-    border: 1px solid var(--linea); border-radius: 10px; color: var(--tinta);
+  .opcion:hover { border-color: var(--gris); }
+  .opcion small { margin-left: auto; color: var(--naranja-texto); font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .marca-op { width: 18px; height: 18px; flex: none; border: 2px solid var(--gris); border-radius: 50%; display: grid; place-items: center; }
+  .opcion[role="checkbox"] .marca-op { border-radius: 5px; }
+  .opcion[aria-checked="true"] { border: 2px solid var(--naranja); background: var(--naranja-suave); padding: 13px 15px; }
+  .opcion[aria-checked="true"] .marca-op { border-color: var(--naranja); background: var(--naranja); }
+  .opcion[aria-checked="true"] .marca-op::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+  .opcion[role="checkbox"][aria-checked="true"] .marca-op::after {
+    width: 5px; height: 9px; border-radius: 0; background: none;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg);
   }
-  textarea { min-height: 140px; resize: vertical; }
+  .vacio { color: var(--gris); margin: 0; }
+
+  .sugerencias:empty { display: none; }
+  .sugerencias { margin-top: 14px; }
+  .sugerencias p { margin: 0 0 8px; font-size: 14px; color: var(--gris); }
+  .sugerencia { display: block; width: 100%; text-align: left; font: 500 16px Inter, sans-serif; padding: 10px 14px; margin-top: 6px; background: #fff; border: 1px solid var(--linea); border-radius: 10px; cursor: pointer; color: var(--tinta); }
+  .sugerencia:hover { border-color: var(--naranja); }
 
   .aviso { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: var(--aviso-fondo); color: var(--naranja-texto); font-size: 14px; }
-  .error { color: var(--error); font-size: 14px; margin-top: 10px; min-height: 20px; }
+  .error { color: var(--error); font-size: 14px; margin-top: 10px; }
+  .error:empty { margin-top: 0; }
 
-  .acciones { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+  .acciones { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+  .acciones-der { display: flex; gap: 10px; margin-left: auto; }
   .pri, .sec { font: 600 16px Inter, sans-serif; padding: 12px 20px; border-radius: 10px; cursor: pointer; }
   .pri { background: var(--tinta); color: #fff; border: 0; }
-  .pri:disabled { opacity: .5; cursor: default; }
+  .pri:disabled { opacity: .45; cursor: default; }
   .sec { background: transparent; color: var(--tinta); border: 1px solid var(--linea); }
+  .invisible { visibility: hidden; }
+  .acciones.columna { flex-direction: column; align-items: stretch; max-width: 320px; }
 
-  button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+  button:focus-visible, textarea:focus-visible, input:focus-visible {
     outline: 3px solid var(--naranja); outline-offset: 2px;
   }
 
+  /* ---- revisión ---- */
+  .grupo-rev + .grupo-rev { margin-top: 26px; }
+  .grupo-rev h2 { font: 600 18px Archivo, sans-serif; margin: 0 0 4px; }
   .resumen { list-style: none; margin: 0; padding: 0; }
-  .resumen li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+  .resumen li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--linea); }
   .resumen li:last-child { border-bottom: 0; }
   .resumen .q { color: var(--gris); font-size: 14px; }
-  .resumen .v { font: 600 22px Archivo, sans-serif; word-break: break-word; }
+  .resumen .v { font: 600 18px/1.3 Archivo, sans-serif; word-break: break-word; }
   .resumen .v.texto { font: 400 15px/1.5 Inter, sans-serif; }
-  .resumen .aprox { display: block; font-size: 13px; color: var(--naranja-texto); }
+  .resumen .v.saltada, .resumen .v.falta { font: 500 15px Inter, sans-serif; color: var(--gris); }
+  .resumen .v.falta { color: var(--error); }
+  .resumen .nota-rev, .resumen .aprox { display: block; font-size: 13px; color: var(--naranja-texto); }
+  .resumen .nota-rev { color: var(--gris); }
+  .resumen .error-rev { display: block; font-size: 13px; color: var(--error); }
   .cambiar { background: none; border: 0; padding: 0; color: var(--naranja-texto); font: 500 14px Inter, sans-serif; text-decoration: underline; cursor: pointer; flex: none; }
 
-  .vista-previa { margin-top: 20px; font-size: 13px; color: var(--gris); }
+  .cargando { color: var(--gris); padding: 40px 0; }
+  .vista-previa { margin-top: 18px; font-size: 13px; color: var(--gris); }
 </style>
 </head>
 <body>
 <main class="marco">
-  <div class="marca">sofka<span>_</span> · registro del sprint</div>
-  <div id="app" aria-live="polite"></div>
+  <div class="marca">sofka<span>_</span><small>registro del sprint</small></div>
+  <div id="app" aria-live="polite"><p class="cargando">Cargando…</p></div>
+  <noscript>Esta página necesita JavaScript.</noscript>
 </main>
 
 <script>
-/* ---------------------------------------------------------------- configuración */
+/* ================================================================ 0. CONFIGURACIÓN */
 
 /* Pega aquí la URL de tu aplicación web de Apps Script (la que termina en /exec). */
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbybmLaDe3oMECKpP3ewOY3foIxBp2PX_fxsF8SgcoohRuat1LxbXX-UT-ovF4R7NSzL/exec';
+const URL_APPS_SCRIPT = 'PEGA_AQUI_TU_URL_EXEC';
 
-/* ---------------------------------------------------------------- datos */
+const CLAVE_BORRADOR = 'registro-sprint-borrador';
+const DIAS_BORRADOR = 14;          // un registro a medias se ofrece para retomar durante 14 días
+const OMITIDA = '(omitida)';       // igual que en Código.gs
 
-const SPRINTS = [
-  'Sprint 3 Q3 2026', 'Sprint 4 Q3 2026', 'Sprint 5 Q3 2026',
-  'Sprint 1 Q4 2026', 'Sprint 2 Q4 2026', 'Sprint 3 Q4 2026',
-  'Sprint 4 Q4 2026', 'Sprint 5 Q4 2026'
-];
+/* ================================================================ 1. ESTADO */
 
-const CELULAS = [
-  'Seguros - Aseguramiento', 'Seguros - Accesos y clientes', 'TI - Gobierno y Arquitectura',
-  'Transformación Digital', 'Empresarial - Gestión de Riesgos',
-  'Empresarial - Transformación Tecnológica', 'SOFKA'
-];
-
-const PREGUNTAS = [
-  { id: 'nombre', tipo: 'corto', corta: 'Nombre',
-    texto: '¿Cuál es tu nombre?',
-    ayuda: 'Escríbelo completo, como aparece en el equipo.' },
-  { id: 'equipo', tipo: 'lista', corta: 'Célula', opciones: CELULAS,
-    texto: '¿En qué célula trabajas?',
-    ayuda: 'Es la que aparece como tu dominio.' },
-  { id: 'sprint', tipo: 'lista', corta: 'Sprint', opciones: SPRINTS,
-    texto: '¿De qué sprint vas a reportar?',
-    ayuda: 'Elige el sprint que acaba de cerrar.' },
-  { id: 'hu_comp', tipo: 'numero', corta: 'HU comprometidas',
-    texto: '¿Cuántas historias de usuario comprometiste en el sprint?',
-    ayuda: 'Di solo el número, por ejemplo “catorce”.' },
-  { id: 'hu_cert', tipo: 'numero', corta: 'HU certificadas', max: 'hu_comp',
-    texto: '¿Cuántas de esas quedaron certificadas?',
-    ayuda: 'No puede ser mayor que las que comprometiste.' },
-  { id: 'bugs_rep', tipo: 'numero', corta: 'Bugs reportados',
-    texto: '¿Cuántos bugs reportaste?',
-    ayuda: 'Cuéntalos todos, aunque después se hayan descartado.' },
-  { id: 'bugs_desc', tipo: 'numero', corta: 'Bugs descartados', max: 'bugs_rep',
-    texto: '¿Cuántos de esos se descartaron?',
-    ayuda: 'Los que resultaron no ser bugs.' },
-  { id: 'comentario', tipo: 'texto', corta: 'Comentario', opcional: true,
-    texto: '¿Qué se trabó en el sprint o qué quieres conversar con tu líder?',
-    ayuda: 'Habla con naturalidad. Esta es opcional.' }
-];
-
-/* ---------------------------------------------------------------- estado */
-
-let paso = 0;
-let respuestas = {};
-let aproximadas = new Set();
-let volverARevision = false;
+let CONFIG = null;            // lo que manda Apps Script: listas y preguntas
+let PREGUNTAS = [];           // todas las preguntas en orden; cada una sabe en qué grupo está
+let POR_ID = {};
+let respuestas = {};          // { idPregunta: valor }
+let aproximadas = new Set();  // preguntas que la persona dijo como "como 10", "unos 12"
+let actual = null;            // id de la pregunta en pantalla, o 'revision' / 'listo'
+let volverARevision = false;  // true cuando se entró a cambiar algo desde la revisión
+let idEnvio = null;           // identifica este registro; si se reenvía, el servidor no lo duplica
+let seleccion = null;         // lo marcado en la pantalla actual, en preguntas de opciones
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
 let escuchando = false;
 
 const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-/* ---------------------------------------------------------------- voz → número */
+/* ================================================================ 2. DE LO DICHO A UN DATO */
+
+function normalizar(t) {
+  return String(t ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
 
 const PALABRAS = {
   cero: 0, ninguno: 0, ninguna: 0, nada: 0,
@@ -171,12 +198,10 @@ const PALABRAS = {
   veintiuno: 21, veintiun: 21, veintidos: 22, veintitres: 23, veinticuatro: 24,
   veinticinco: 25, veintiseis: 26, veintisiete: 27, veintiocho: 28, veintinueve: 29,
   treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70,
-  ochenta: 80, noventa: 90, cien: 100, ciento: 100
+  ochenta: 80, noventa: 90, cien: 100, ciento: 100, doscientos: 200, trescientos: 300,
+  cuatrocientos: 400, quinientos: 500, seiscientos: 600, setecientos: 700,
+  ochocientos: 800, novecientos: 900
 };
-
-function normalizar(t) {
-  return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
 
 /** "catorce" → 14, "treinta y cuatro" → 34, "como 12" → 12. Devuelve null si no hay número. */
 function aNumero(texto) {
@@ -185,12 +210,28 @@ function aNumero(texto) {
   if (digitos) return parseInt(digitos[0], 10);
 
   let total = null;
-  for (const p of t.split(/[^a-zñ]+/)) {
+  for (const p of t.split(/[^a-z]+/)) {
     if (p in PALABRAS) total = (total || 0) + PALABRAS[p];
     else if (p === 'y' && total !== null) continue;
     else if (total !== null) break;
   }
   return total;
+}
+
+/** Para preguntas en minutos: "hora y media" → 90, "dos horas" → 120, "45" → 45. */
+function aMinutos(texto) {
+  const t = normalizar(texto);
+  const m = t.match(/^(.*?)\bhoras?\b(.*)$/);
+  if (!m) return aNumero(t);
+  const antes = m[1], despues = m[2];
+  if (/\bmedia\s*$/.test(antes) && aNumero(antes.replace(/\bmedia\s*$/, '')) === null) return 30;
+  let horas = aNumero(antes);
+  if (horas === null) horas = 1;                       // "hora y media": una hora y media
+  let minutos = 0;
+  if (/\bmedia\b/.test(despues)) minutos = 30;
+  else if (/\bcuarto\b/.test(despues)) minutos = 15;
+  else { const n = aNumero(despues); if (n !== null) minutos = n; }
+  return horas * 60 + minutos;
 }
 
 /** Detecta si la persona dijo un número aproximado: "como catorce", "unos doce"… */
@@ -199,269 +240,840 @@ function esAproximado(texto) {
     .test(normalizar(texto));
 }
 
-/* ---------------------------------------------------------------- pantallas */
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+  'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-function render() {
-  if (escuchando && rec) rec.stop();
-  if (paso === 'listo') return pantallaListo();
-  if (paso === PREGUNTAS.length) return pantallaRevision();
-  pantallaPregunta(PREGUNTAS[paso]);
+/** "15 de octubre" → "2026-10-15". Sin año, toma el más cercano que tenga sentido. */
+function aFecha(texto, hoy = new Date()) {
+  const t = normalizar(texto).replace(/\bsetiembre\b/, 'septiembre');
+  let m = t.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return armarFecha(+m[1], +m[2], +m[3]);
+  m = t.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return armarFecha(+m[3], +m[2], +m[1]);
+
+  const mes = MESES.findIndex(n => new RegExp('\\b' + n + '\\b').test(t));
+  if (mes !== -1) {
+    const [antes, despues] = t.split(new RegExp('\\b' + MESES[mes] + '\\b'));
+    const dia = /\bprimero\b/.test(antes) ? 1 : aNumero(antes);
+    if (dia === null) return null;
+    const conAnio = despues.match(/\b(\d{4})\b/);
+    if (conAnio) return armarFecha(+conAnio[1], mes + 1, dia);
+    // Sin año: si la fecha ya pasó hace más de 3 meses, seguro es del año siguiente
+    const anio = hoy.getFullYear();
+    const pasados = (hoy - new Date(anio, mes, dia)) / 86400000;
+    return armarFecha(pasados > 90 ? anio + 1 : anio, mes + 1, dia);
+  }
+  if (/\bpasado manana\b/.test(t)) return iso(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 2));
+  if (/\bmanana\b/.test(t)) return iso(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1));
+  if (/\bhoy\b/.test(t)) return iso(hoy);
+  return null;
 }
 
-function pantallaPregunta(p) {
-  const n = paso + 1;
-  const valor = respuestas[p.id] ?? '';
-  let campo = '';
+function armarFecha(a, m, d) {
+  const f = new Date(a, m - 1, d);
+  if (f.getFullYear() !== a || f.getMonth() !== m - 1 || f.getDate() !== d) return null;  // 31 de febrero
+  return iso(f);
+}
+function iso(f) {
+  return f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0') + '-' + String(f.getDate()).padStart(2, '0');
+}
 
-  if (p.tipo === 'lista') {
-    campo = `<label class="etiqueta" for="campo">${esc(p.corta)}</label>
-      <select id="campo"><option value="">Elige una opción</option>
-      ${p.opciones.map(o => `<option ${o === valor ? 'selected' : ''}>${esc(o)}</option>`).join('')}
-      </select>`;
-  } else if (p.tipo === 'corto') {
-    campo = `<label class="etiqueta" for="campo">Nombre completo</label>
-      <input id="campo" type="text" autocomplete="name" value="${esc(valor)}"
-        style="width:100%;font:inherit;padding:12px;background:#fff;border:1px solid var(--linea);border-radius:10px">`;
-  } else if (p.tipo === 'numero') {
-    campo = `<label class="etiqueta" for="campo">Respuesta</label>
-      <input id="campo" class="campo-num" type="number" inputmode="numeric" min="0" step="1" value="${esc(valor)}">`;
-  } else {
-    campo = `<label class="etiqueta" for="campo">Respuesta</label>
-      <textarea id="campo">${esc(valor)}</textarea>`;
+/* ---- reconocer opciones en lo dicho ---- */
+
+const VACIAS = new Set(['de', 'del', 'la', 'las', 'el', 'los', 'y', 'e', 'o', 'u', 'en', 'con', 'por', 'para',
+  'a', 'al', 'un', 'una', 'unos', 'unas', 'que', 'mi', 'mis', 'me', 'se', 'lo', 'le', 'su', 'sus', 'es',
+  'fue', 'son', 'yo', 'soy', 'este', 'esta', 'eso', 'esa', 'use', 'hice', 'trabaje']);
+const DIGITO = { uno: '1', dos: '2', tres: '3', cuatro: '4', cinco: '5', seis: '6', siete: '7', ocho: '8',
+  nueve: '9', diez: '10', once: '11', doce: '12', trece: '13', catorce: '14', quince: '15', veinte: '20' };
+
+/** Quita el plural para que "pruebas" y "prueba" cuenten igual. */
+function raiz(p) {
+  if (p.length > 5 && /[dlnrjz]es$/.test(p)) return p.slice(0, -2);   // actividades → actividad
+  if (p.length > 3 && p.endsWith('s')) return p.slice(0, -1);         // pruebas → prueba
+  return p;
+}
+
+/** Palabras con significado de un texto: sin tildes, sin "de/la/el…", en singular, números en dígitos. */
+function claves(texto) {
+  return normalizar(texto).split(/[^a-z0-9]+/)
+    .filter(p => p && !VACIAS.has(p))
+    .map(p => DIGITO[p] || raiz(p));
+}
+
+/**
+ * Qué tanto se parece lo dicho a cada opción, de 0 a 1.
+ * Solo cuentan las palabras que distinguen una opción de las demás: en
+ * "Diseño de casos de prueba" y "Diseño de plan de pruebas", decir "diseño"
+ * no ayuda a elegir, pero "casos" o "plan" sí.
+ */
+function puntajes(dicho, opciones, sinonimos = {}) {
+  const lista = claves(dicho);
+  const dichas = new Set(lista);
+  const frase = ' ' + lista.join(' ') + ' ';
+  const porOpcion = opciones.map(o => [...new Set(claves(o))]);
+  const veces = {};
+  porOpcion.forEach(ks => ks.forEach(k => { veces[k] = (veces[k] || 0) + 1; }));
+
+  return opciones.map((o, i) => {
+    const todas = porOpcion[i];
+    let propias = todas.filter(k => veces[k] === 1);
+    if (!propias.length) propias = todas;
+    let p = propias.length ? propias.filter(k => dichas.has(k)).length / propias.length : 0;
+    const completa = claves(o).join(' ');
+    if (completa && frase.includes(' ' + completa + ' ')) p = 1 + completa.length / 1000;   // dijo la opción entera
+    (sinonimos[o] || []).forEach(s => {
+      const ks = claves(s);
+      if (ks.length && ks.every(k => dichas.has(k))) p = Math.max(p, 1);
+    });
+    return p;
+  });
+}
+
+/** Para opción única: la que mejor coincide, si es clara. Si hay empate, ninguna. */
+function elegirUna(dicho, opciones, sinonimos) {
+  const p = puntajes(dicho, opciones, sinonimos);
+  const max = Math.max(0, ...p);
+  if (max < 0.5 || p.filter(x => x === max).length > 1) return null;
+  return opciones[p.indexOf(max)];
+}
+
+/** Para selección múltiple: todas las que se mencionaron. */
+function elegirVarias(dicho, opciones, sinonimos) {
+  const p = puntajes(dicho, opciones, sinonimos);
+  return opciones.filter((o, i) => p[i] > 0);
+}
+
+function aSiNo(dicho) {
+  for (const p of normalizar(dicho).split(/[^a-z]+/)) {
+    if (['si', 'claro', 'correcto', 'afirmativo', 'exacto', 'obvio', 'efectivamente', 'dale'].includes(p)) return 'Sí';
+    if (['no', 'negativo', 'nada', 'ninguno', 'ninguna', 'tampoco'].includes(p)) return 'No';
   }
+  return null;
+}
 
-  const conVoz = p.tipo === 'numero' || p.tipo === 'texto';
-  const mic = !conVoz ? '' : SR
-    ? `<div class="mic">
-         <button class="btn-mic" id="btn-mic" aria-label="Dictar respuesta">
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
-         </button>
-         <span class="estado" id="estado">Toca para dictar</span>
-       </div>
-       <div class="transcripcion" id="transcripcion"></div>`
-    : `<p class="estado">Este navegador no permite dictar. Ábrelo en Chrome o escribe la respuesta.</p>`;
+/* ================================================================ 3. EL RECORRIDO: QUÉ SE PREGUNTA */
 
+function prepararPreguntas() {
+  PREGUNTAS = [];
+  POR_ID = {};
+  CONFIG.formulario.forEach(grupo => grupo.preguntas.forEach(q => {
+    const p = { ...q, grupo };
+    PREGUNTAS.push(p);
+    POR_ID[p.id] = p;
+  }));
+}
+
+const esDeOpciones = q => ['sino', 'opcion', 'catalogo', 'multiple'].includes(q.tipo);
+
+/** Opciones de una pregunta. Las de catálogo dependen de lo que ya se respondió. */
+function opcionesDe(q) {
+  if (q.tipo === 'sino') return ['Sí', 'No'];
+  if (q.tipo === 'catalogo') {
+    const r = respuestas;
+    if (q.fuente === 'secciones') return CONFIG.secciones;
+    if (q.fuente === 'lideres') return CONFIG.lideres.filter(l => l.seccion === r.seccion).map(l => l.nombre);
+    if (q.fuente === 'celulas') return CONFIG.celulas.filter(c => c.lider === r.lider).map(c => c.nombre);
+    if (q.fuente === 'sprints') return CONFIG.sprints.filter(s => s.seccion === r.seccion).map(s => s.nombre);
+    return [];
+  }
+  if (q.opcionesPorRol) return q.opcionesPorRol[respuestas.rol] || [];
+  return q.opciones || [];
+}
+
+/**
+ * ¿Se le muestra esta pregunta a la persona? Depende de su rol, de la condición
+ * de su grupo y de la suya. Si la condición mira una pregunta que ya no se ve
+ * (porque cambió algo antes), cuenta como no cumplida: una respuesta vieja no abre nada.
+ */
+function visible(q, camino = []) {
+  if (camino.includes(q.id)) return false;
+  const c = [...camino, q.id];
+  if (q.grupo.rol !== 'Todos' && respuestas.rol !== q.grupo.rol) return false;
+  if (q.grupo.si && !cumple(q.grupo.si, c)) return false;
+  if (q.si && !cumple(q.si, c)) return false;
+  return true;
+}
+
+function cumple(cond, camino) {
+  const ref = POR_ID[cond.pregunta];
+  if (!ref || !visible(ref, camino) || !respondida(ref)) return false;
+  const v = respuestas[ref.id];
+  if (v === OMITIDA) return false;
+  if ('es' in cond) return v === cond.es;
+  if ('en' in cond) return cond.en.includes(v);
+  if ('incluye' in cond) return Array.isArray(v) && v.includes(cond.incluye);
+  if ('mayorQue' in cond) return typeof v === 'number' && v > cond.mayorQue;
+  return false;
+}
+
+/** Respondida = tiene valor válido hoy. Si cambió la sección, el líder viejo ya no sirve. */
+function respondida(q) {
+  const v = respuestas[q.id];
+  if (v === undefined || v === null || v === '') return false;
+  if (v === OMITIDA) return true;
+  if (['sino', 'opcion', 'catalogo'].includes(q.tipo)) return opcionesDe(q).includes(v);
+  if (q.tipo === 'multiple') return Array.isArray(v) && v.length > 0 && v.every(x => opcionesDe(q).includes(x));
+  return true;
+}
+
+/** Las preguntas que esta persona tiene que ver, en orden. Cambia a medida que responde. */
+function secuencia() {
+  return PREGUNTAS.filter(q => q.tipo !== 'calculada' && visible(q));
+}
+
+function siguienteDe(id) {
+  const sec = secuencia();
+  if (volverARevision) {
+    // Un cambio puede abrir preguntas nuevas (marcar otro frente, por ejemplo): esas van primero
+    const pendiente = sec.find(q => !respondida(q));
+    if (pendiente) return pendiente.id;
+    volverARevision = false;
+    return 'revision';
+  }
+  const i = sec.findIndex(q => q.id === id);
+  if (i === -1) { const p = sec.find(q => !respondida(q)); return p ? p.id : 'revision'; }
+  return i + 1 < sec.length ? sec[i + 1].id : 'revision';
+}
+
+/**
+ * Quien está cubriendo puede saltar todo lo de su rol: llegó a mitad del sprint y
+ * no tiene por qué saber todas las cifras. Lo de "Para todos" sí se responde.
+ */
+function puedeSaltar(q) {
+  if (q.obligatoria === false) return true;
+  if (q.tipo === 'catalogo' && opcionesDe(q).length === 0) return true;
+  return respuestas.cubriendo === 'Sí' && q.grupo.rol !== 'Todos';
+}
+
+/* ================================================================ 4. VALIDAR */
+
+/** ['a', '-b', 100] = a − b + 100. Si falta un término, null: sin dato no se valida. */
+function sumaTerminos(terminos) {
+  let total = 0;
+  for (const t of terminos) {
+    if (typeof t === 'number') { total += t; continue; }
+    const resta = t.startsWith('-');
+    const id = resta ? t.slice(1) : t;
+    const ref = POR_ID[id];
+    const v = respuestas[id];
+    if (!ref || !visible(ref) || typeof v !== 'number') return null;
+    total += resta ? -v : v;
+  }
+  return total;
+}
+
+/** "Calidad: HU comprometidas" → "HU comprometidas" */
+function etiqueta(q) {
+  const i = q.columna.indexOf(': ');
+  return i === -1 ? q.columna : q.columna.slice(i + 2);
+}
+const mayuscula = t => t.charAt(0).toUpperCase() + t.slice(1);
+
+function describirTope(terminos, tope) {
+  if (terminos.length === 1 && typeof terminos[0] === 'number') return String(tope);
+  const partes = terminos.map((t, i) => {
+    if (typeof t === 'number') return String(t);
+    const nombre = etiqueta(POR_ID[t.replace(/^-/, '')]);
+    return i === 0 ? nombre : (t.startsWith('-') ? 'menos ' : 'más ') + nombre;
+  });
+  return `${tope} (${partes.join(' ')})`;
+}
+
+function fechaBonita(isoTexto) {
+  const [a, m, d] = isoTexto.split('-').map(Number);
+  return `${d} de ${MESES[m - 1]} de ${a}`;
+}
+
+/** Devuelve el mensaje de error, o '' si el valor está bien. */
+function validar(q, v) {
+  if (v === OMITIDA) return '';
+  if (q.tipo === 'numero') {
+    if (!Number.isInteger(v) || v < 0) return 'Tiene que ser un número entero, cero o mayor.';
+    if (q.maximo) {
+      const tope = sumaTerminos(q.maximo);
+      if (tope !== null && v > tope) return `No puede ser mayor que ${describirTope(q.maximo, tope)}.`;
+    }
+  }
+  if (q.tipo === 'fecha') {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'Elige una fecha válida.';
+    const ref = POR_ID[q.despuesDe];
+    const desde = ref && visible(ref) ? respuestas[q.despuesDe] : null;
+    if (typeof desde === 'string' && desde !== OMITIDA && v < desde) {
+      return `No puede ser antes de ${etiqueta(ref)} (${fechaBonita(desde)}).`;
+    }
+  }
+  if ((q.tipo === 'texto' || q.tipo === 'nombre') && v.length > 1000) return 'Es muy largo: déjalo en menos de 1000 caracteres.';
+  return '';
+}
+
+/* ================================================================ 5. PANTALLAS */
+
+function render() {
+  detenerDictado();
+  if (actual === 'listo') return pantallaListo();
+  if (actual === 'revision') { pantallaRevision(); guardarBorrador(); return; }
+
+  const q = POR_ID[actual];
+  if (!q || q.tipo === 'calculada' || !visible(q)) {
+    // La pregunta dejó de aplicar (cambió el rol, por ejemplo): sigue con la primera pendiente
+    const p = secuencia().find(x => !respondida(x));
+    actual = p ? p.id : 'revision';
+    return render();
+  }
+  pantallaPregunta(q);
+  guardarBorrador();
+  window.scrollTo(0, 0);
+}
+
+const MIC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`;
+const botonMic = () => SR ? `<button type="button" class="btn-mic" id="btn-mic" aria-label="Dictar la respuesta">${MIC}</button>` : '';
+
+function pantallaPregunta(q) {
+  const sec = secuencia();
+  const i = sec.indexOf(q);
+  const delGrupo = sec.filter(x => x.grupo === q.grupo);
+  const primeraDelGrupo = delGrupo[0] === q;
+  const v = respuestas[q.id];
+  const ops = esDeOpciones(q) ? opcionesDe(q) : [];
+
+  if (q.tipo === 'multiple') seleccion = Array.isArray(v) ? v.filter(x => ops.includes(x)) : [];
+  else if (esDeOpciones(q)) seleccion = ops.includes(v) ? v : (q.tipo === 'catalogo' && ops.length === 1 ? ops[0] : null);
+  else seleccion = null;
+
+  const ultima = i === sec.length - 1;
   $('#app').innerHTML = `
-    <div class="progreso"><span>Pregunta ${n} de ${PREGUNTAS.length}</span>
-      <div class="barra"><i style="width:${(paso / PREGUNTAS.length) * 100}%"></i></div></div>
-    <h1>${esc(p.texto)}</h1>
-    <p class="ayuda">${esc(p.ayuda)}</p>
+    <div class="progreso">
+      <span class="grupo-nombre">${esc(q.grupo.titulo)}</span>
+      <div class="barra" aria-hidden="true"><i style="width:${(i / sec.length) * 100}%"></i></div>
+      <span class="cuenta">${delGrupo.indexOf(q) + 1} de ${delGrupo.length}</span>
+    </div>
+    ${primeraDelGrupo && q.grupo.intro ? `<p class="intro">${esc(q.grupo.intro)}</p>` : ''}
+    <h1 id="titulo" tabindex="-1">${esc(q.texto)}</h1>
+    ${q.ayuda ? `<p class="ayuda">${esc(q.ayuda)}</p>` : '<div style="height:14px"></div>'}
     <div class="tarjeta">
-      ${mic}
-      ${campo}
+      ${campoHtml(q, v, ops)}
+      <div id="escuche" class="escuche"></div>
       <div id="aviso"></div>
       <div class="error" id="error" role="alert"></div>
     </div>
     <div class="acciones">
-      <button class="sec" id="atras" ${paso === 0 ? 'style="visibility:hidden"' : ''}>Atrás</button>
-      <button class="pri" id="siguiente">${volverARevision || paso === PREGUNTAS.length - 1 ? 'Revisar respuestas' : 'Siguiente'}</button>
+      <button class="sec ${i === 0 && !volverARevision ? 'invisible' : ''}" id="atras">${volverARevision ? 'Volver a la revisión' : 'Atrás'}</button>
+      <div class="acciones-der">
+        ${puedeSaltar(q) ? '<button class="sec" id="saltar">Saltar</button>' : ''}
+        <button class="pri" id="siguiente">${volverARevision ? 'Guardar cambio' : ultima ? 'Revisar respuestas' : 'Siguiente'}</button>
+      </div>
     </div>`;
+  conectarPregunta(q);
+}
 
-  if (aproximadas.has(p.id)) mostrarAviso(p);
-  if (conVoz && SR) $('#btn-mic').onclick = () => dictar(p);
-  $('#atras').onclick = () => { paso--; render(); };
-  $('#siguiente').onclick = () => avanzar(p);
-  $('#campo').addEventListener('input', () => {
-    $('#error').textContent = '';
-    if (aproximadas.delete(p.id)) $('#aviso').innerHTML = '';
-  });
-  if (p.tipo === 'numero' || p.tipo === 'corto') {
-    $('#campo').addEventListener('keydown', e => { if (e.key === 'Enter') avanzar(p); });
+function campoHtml(q, v, ops) {
+  const valor = v === undefined || v === OMITIDA ? '' : v;
+  const como = SR
+    ? 'Escribe tu respuesta o toca el micrófono para dictarla.'
+    : 'Escribe tu respuesta. Para dictarla, abre esta página en Chrome.';
+
+  if (q.tipo === 'numero') {
+    return `<label class="etiqueta" for="campo">Tu respuesta</label>
+      <div class="entrada">
+        <input id="campo" class="campo-num" type="text" inputmode="numeric" autocomplete="off" value="${esc(valor)}">
+        ${q.unidad === 'minutos' ? '<span class="unidad">min</span>' : ''}
+        ${botonMic()}
+      </div>
+      <p class="como" id="como">${como}</p>`;
   }
+  if (q.tipo === 'nombre' || q.tipo === 'fecha' || (q.tipo === 'texto' && q.corto)) {
+    const tipo = q.tipo === 'fecha' ? 'date' : 'text';
+    const auto = q.tipo === 'nombre' ? 'name' : 'off';
+    return `<label class="etiqueta" for="campo">${q.tipo === 'nombre' ? 'Nombre completo' : 'Tu respuesta'}</label>
+      <div class="entrada">
+        <input id="campo" class="campo-texto" type="${tipo}" autocomplete="${auto}" value="${esc(valor)}">
+        ${botonMic()}
+      </div>
+      <p class="como" id="como">${q.tipo === 'fecha' && SR ? 'Elígela en el calendario o dila, por ejemplo “15 de octubre”.' : como}</p>
+      ${q.tipo === 'nombre' ? '<div id="sugerencias" class="sugerencias" aria-live="polite"></div>' : ''}`;
+  }
+  if (q.tipo === 'texto') {
+    return `<label class="etiqueta" for="campo">Tu respuesta</label>
+      <textarea id="campo">${esc(valor)}</textarea>
+      <div class="pie-texto">${botonMic()}<p class="como" id="como" style="margin:0">${como}</p></div>`;
+  }
+
+  // Opciones: una sola, varias, o sí/no
+  if (!ops.length) {
+    return `<p class="vacio">Todavía no hay opciones registradas aquí. Avísale al administrador; mientras tanto, salta esta pregunta.</p>`;
+  }
+  const varias = q.tipo === 'multiple';
+  const botones = ops.map(o => {
+    const marcada = varias ? seleccion.includes(o) : seleccion === o;
+    const extra = q.fuente === 'sprints' && CONFIG.sprints.some(s => s.nombre === o && s.seccion === respuestas.seccion && s.enCurso) ? 'en curso' : '';
+    return `<button type="button" class="opcion" role="${varias ? 'checkbox' : 'radio'}" aria-checked="${marcada}" data-valor="${esc(o)}">
+      <span class="marca-op" aria-hidden="true"></span><span>${esc(o)}</span>${extra ? `<small>${extra}</small>` : ''}</button>`;
+  }).join('');
+  return `<div class="opciones ${q.tipo === 'sino' ? 'sino' : ''}" role="${varias ? 'group' : 'radiogroup'}" aria-labelledby="titulo">${botones}</div>
+    ${SR ? `<div class="voz">${botonMic()}<p class="como" id="como">${varias ? 'Marca las que apliquen o dilas en voz alta.' : 'Toca una opción o dila en voz alta.'}</p></div>` : ''}`;
 }
 
-function pantallaRevision() {
-  $('#app').innerHTML = `
-    <div class="progreso"><span>Revisión</span>
-      <div class="barra"><i style="width:100%"></i></div></div>
-    <h1>Revisa antes de enviar</h1>
-    <p class="ayuda">Esto es lo que se va a guardar. Puedes cambiar cualquier respuesta.</p>
-    <div class="tarjeta">
-      <ul class="resumen">
-        ${PREGUNTAS.map((p, i) => {
-          const v = respuestas[p.id];
-          const vacio = v === undefined || v === '';
-          return `<li>
-            <div>
-              <div class="q">${esc(p.corta)}</div>
-              <div class="v ${p.tipo === 'texto' ? 'texto' : ''}">${vacio ? '—' : esc(v)}</div>
-              ${aproximadas.has(p.id) ? '<span class="aprox">Lo dijiste como aproximado</span>' : ''}
-            </div>
-            <button class="cambiar" data-i="${i}">Cambiar</button>
-          </li>`;
-        }).join('')}
-      </ul>
-      <div class="error" id="error" role="alert"></div>
-    </div>
-    <div class="acciones">
-      <button class="sec" id="atras">Atrás</button>
-      <button class="pri" id="enviar">Enviar respuestas</button>
-    </div>
-    ${(typeof google === 'undefined' && !URL_APPS_SCRIPT.startsWith('https://')) ? '<p class="vista-previa">Vista previa: falta pegar la URL de Apps Script, así que las respuestas no se guardan.</p>' : ''}`;
+function conectarPregunta(q) {
+  $('#atras').onclick = retroceder;
+  $('#siguiente').onclick = () => avanzar(q);
+  if ($('#saltar')) $('#saltar').onclick = () => saltar(q);
+  if ($('#btn-mic')) $('#btn-mic').onclick = () => dictar(q);
+  $$('.opcion').forEach(b => b.onclick = () => elegir(q, b.dataset.valor));
+  if (aproximadas.has(q.id)) mostrarAviso();
 
-  document.querySelectorAll('.cambiar').forEach(b => b.onclick = () => {
-    paso = Number(b.dataset.i); volverARevision = true; render();
-  });
-  $('#atras').onclick = () => { paso = PREGUNTAS.length - 1; render(); };
-  $('#enviar').onclick = enviar;
-}
-
-function pantallaListo() {
-  $('#app').innerHTML = `
-    <div class="progreso"><span>Listo</span>
-      <div class="barra"><i style="width:100%"></i></div></div>
-    <h1>Respuestas enviadas</h1>
-    <p class="ayuda">Quedaron guardadas en la hoja “Respuestas demo”.</p>
-    <div class="acciones"><span></span>
-      <button class="pri" id="otra">Registrar otro sprint</button></div>`;
-  $('#otra').onclick = () => {
-    paso = 0; respuestas = {}; aproximadas = new Set(); volverARevision = false; render();
-  };
-}
-
-/* ---------------------------------------------------------------- acciones */
-
-function avanzar(p) {
   const campo = $('#campo');
-  const bruto = campo.value.trim();
-  const err = $('#error');
-
-  if (p.tipo === 'corto') {
-    if (!bruto) { err.textContent = 'Escribe tu nombre para continuar.'; return; }
-    respuestas[p.id] = bruto;
-  } else if (p.tipo === 'lista') {
-    if (!bruto) { err.textContent = 'Elige una opción para continuar.'; return; }
-    respuestas[p.id] = bruto;
-  } else if (p.tipo === 'numero') {
-    if (bruto === '') { err.textContent = 'Dicta o escribe un número para continuar.'; return; }
-    const n = Number(bruto);
-    if (!Number.isInteger(n) || n < 0) { err.textContent = 'Tiene que ser un número entero, cero o mayor.'; return; }
-    if (p.max && respuestas[p.max] !== undefined && n > respuestas[p.max]) {
-      const ref = PREGUNTAS.find(q => q.id === p.max);
-      err.textContent = `No puede ser mayor que ${ref.corta.toLowerCase()} (${respuestas[p.max]}).`;
-      return;
-    }
-    respuestas[p.id] = n;
-  } else {
-    respuestas[p.id] = bruto;
+  if (!campo) return;
+  campo.addEventListener('input', () => {
+    $('#error').textContent = '';
+    if (aproximadas.delete(q.id)) $('#aviso').innerHTML = '';   // si lo corrige a mano, ya no es aproximado
+    if (q.tipo === 'nombre') buscarNombres(campo.value);
+  });
+  if (campo.tagName === 'INPUT') {
+    campo.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); avanzar(q); } });
   }
+}
 
-  if (volverARevision) { volverARevision = false; paso = PREGUNTAS.length; }
-  else paso++;
+/** Tocar una opción única la elige y avanza. En varias, marca o desmarca. */
+function elegir(q, valor, porVoz = false) {
+  if (q.tipo === 'multiple') {
+    const ops = opcionesDe(q);
+    seleccion = seleccion.includes(valor) ? seleccion.filter(x => x !== valor) : ops.filter(o => o === valor || seleccion.includes(o));
+  } else {
+    seleccion = valor;
+  }
+  $$('.opcion').forEach(b => b.setAttribute('aria-checked',
+    q.tipo === 'multiple' ? seleccion.includes(b.dataset.valor) : b.dataset.valor === seleccion));
+  $('#error').textContent = '';
+  if (q.tipo !== 'multiple' && !porVoz) setTimeout(() => { if (actual === q.id) avanzar(q); }, 180);
+}
+
+/** Lo que hay en pantalla, ya convertido. Devuelve { valor } o { vacio: true } o { error }. */
+function leerValor(q) {
+  const campo = $('#campo');
+  if (q.tipo === 'numero') {
+    const t = campo.value.trim();
+    if (!t) return { vacio: true, error: 'Escribe o dicta un número para continuar.' };
+    if (!/^\d+$/.test(t)) return { error: 'Escribe solo el número, sin letras ni puntos. Por ejemplo: 14.' };
+    return { valor: parseInt(t, 10) };
+  }
+  if (q.tipo === 'nombre' || q.tipo === 'texto') {
+    const t = campo.value.trim();
+    if (!t) return { vacio: true, error: q.tipo === 'nombre' ? 'Escribe tu nombre para continuar.' : 'Escribe o dicta tu respuesta para continuar.' };
+    return { valor: q.tipo === 'nombre' ? t.replace(/\s+/g, ' ') : t };
+  }
+  if (q.tipo === 'fecha') {
+    if (!campo.value) return { vacio: true, error: 'Elige o dicta una fecha para continuar.' };
+    return { valor: campo.value };
+  }
+  if (q.tipo === 'multiple') {
+    if (!seleccion || !seleccion.length) return { vacio: true, error: 'Marca al menos una opción para continuar.' };
+    return { valor: [...seleccion] };
+  }
+  if (!seleccion) return { vacio: true, error: opcionesDe(q).length ? 'Elige una opción para continuar.' : 'Salta esta pregunta para continuar.' };
+  return { valor: seleccion };
+}
+
+function avanzar(q) {
+  const leido = leerValor(q);
+  if (leido.vacio && puedeSaltar(q)) return saltar(q);    // en las opcionales, dejarla vacía es saltarla
+  if (leido.error) { $('#error').textContent = leido.error; return; }
+  const error = validar(q, leido.valor);
+  if (error) { $('#error').textContent = error; return; }
+  respuestas[q.id] = leido.valor;
+  actual = siguienteDe(q.id);
   render();
 }
 
-function dictar(p) {
+function saltar(q) {
+  respuestas[q.id] = OMITIDA;
+  aproximadas.delete(q.id);
+  actual = siguienteDe(q.id);
+  render();
+}
+
+function retroceder() {
+  if (volverARevision) { volverARevision = false; actual = 'revision'; return render(); }
+  const sec = secuencia();
+  const i = sec.findIndex(q => q.id === actual);
+  if (i > 0) { actual = sec[i - 1].id; render(); }
+}
+
+function mostrarAviso() {
+  $('#aviso').innerHTML = '<div class="aviso">Lo dijiste como aproximado. Si es exacto, sigue; si no, revisa el dato, porque se guarda como número exacto.</div>';
+}
+
+/* ---- sugerencias de nombre ---- */
+
+let temporizadorNombres = null;
+function buscarNombres(texto) {
+  clearTimeout(temporizadorNombres);
+  const q = texto.trim();
+  if (normalizar(q).replace(/[^a-z]/g, '').length < 3 || !URL_APPS_SCRIPT.startsWith('https://')) return pintarSugerencias([]);
+  temporizadorNombres = setTimeout(async () => {
+    try {
+      const res = await fetch(URL_APPS_SCRIPT + '?accion=nombres&q=' + encodeURIComponent(q));
+      const d = await res.json();
+      if (actual === 'nombre' && $('#campo') && $('#campo').value.trim() === q) pintarSugerencias(d.nombres || []);
+    } catch (e) { /* sin sugerencias no pasa nada: se escribe a mano */ }
+  }, 400);
+}
+
+function pintarSugerencias(lista) {
+  const caja = $('#sugerencias');
+  if (!caja) return;
+  const escrito = $('#campo').value.trim();
+  lista = lista.filter(n => n !== escrito);
+  caja.innerHTML = lista.length
+    ? '<p>¿Eres alguna de estas personas?</p>' + lista.map(n => `<button type="button" class="sugerencia" data-nombre="${esc(n)}">${esc(n)}</button>`).join('')
+    : '';
+  $$('.sugerencia').forEach(b => b.onclick = () => { $('#campo').value = b.dataset.nombre; pintarSugerencias([]); });
+}
+
+/* ---- revisión ---- */
+
+function mostrarValor(q, v) {
+  if (v === OMITIDA) return 'Saltada';
+  if (Array.isArray(v)) return v.join(', ');
+  if (q.tipo === 'fecha') return fechaBonita(v);
+  if (q.unidad === 'minutos') return v + ' min';
+  return String(v);
+}
+
+function pantallaRevision() {
+  const grupos = [];
+  PREGUNTAS.filter(q => visible(q)).forEach(q => {
+    let g = grupos.find(x => x.grupo === q.grupo);
+    if (!g) grupos.push(g = { grupo: q.grupo, items: [] });
+    g.items.push(q);
+  });
+
+  let pendientes = 0, errores = 0;
+  const fila = q => {
+    const nombre = esc(mayuscula(etiqueta(q)));
+    if (q.tipo === 'calculada') {
+      const n = sumaTerminos(q.calculada);
+      return `<li><div><div class="q">${nombre}</div><div class="v">${n === null ? '—' : n}</div>
+        <span class="nota-rev">Se calcula solo con tus otras respuestas</span></div></li>`;
+    }
+    if (!respondida(q)) {
+      pendientes++;
+      return `<li><div><div class="q">${nombre}</div><div class="v falta">Falta responder</div></div>
+        <button class="cambiar" data-id="${q.id}">Responder</button></li>`;
+    }
+    const v = respuestas[q.id];
+    const error = validar(q, v);
+    if (error) errores++;
+    const clase = v === OMITIDA ? 'saltada' : (Array.isArray(v) || (q.tipo === 'texto' && !q.corto) ? 'texto' : '');
+    return `<li><div>
+        <div class="q">${nombre}</div>
+        <div class="v ${clase}">${esc(mostrarValor(q, v))}</div>
+        ${aproximadas.has(q.id) && v !== OMITIDA ? '<span class="aprox">Lo dijiste como aproximado</span>' : ''}
+        ${error ? `<span class="error-rev">${esc(error)}</span>` : ''}
+      </div><button class="cambiar" data-id="${q.id}">Cambiar</button></li>`;
+  };
+
+  const cuerpo = grupos.map(g => `<section class="grupo-rev"><h2>${esc(g.grupo.titulo)}</h2>
+    <ul class="resumen">${g.items.map(fila).join('')}</ul></section>`).join('');
+  const bloqueado = pendientes || errores;
+
+  $('#app').innerHTML = `
+    <div class="progreso"><span class="grupo-nombre">Revisión</span>
+      <div class="barra"><i style="width:100%"></i></div></div>
+    <h1 tabindex="-1">Revisa antes de enviar</h1>
+    <p class="ayuda">Esto es lo que se va a guardar. Puedes cambiar cualquier respuesta.</p>
+    <div class="tarjeta">${cuerpo}</div>
+    <div class="error" id="error" role="alert">${bloqueado ? (pendientes ? 'Hay preguntas sin responder.' : 'Hay respuestas que no cuadran; corrígelas antes de enviar.') : ''}</div>
+    <div class="acciones">
+      <button class="sec" id="atras">Atrás</button>
+      <button class="pri" id="enviar" ${bloqueado ? 'disabled' : ''}>Enviar respuestas</button>
+    </div>
+    ${URL_APPS_SCRIPT.startsWith('https://') ? '' : '<p class="vista-previa">Vista previa: falta pegar la URL de Apps Script, así que las respuestas no se guardan.</p>'}`;
+
+  $$('.cambiar').forEach(b => b.onclick = () => { actual = b.dataset.id; volverARevision = true; render(); });
+  $('#atras').onclick = () => { const s = secuencia(); actual = s[s.length - 1].id; render(); };
+  $('#enviar').onclick = enviar;
+  window.scrollTo(0, 0);
+}
+
+function pantallaListo(sinConfirmar) {
+  $('#app').innerHTML = `
+    <div class="progreso"><span class="grupo-nombre">Listo</span>
+      <div class="barra"><i style="width:100%"></i></div></div>
+    <h1 tabindex="-1">Respuestas enviadas</h1>
+    <p class="ayuda">${sinConfirmar
+      ? 'Salieron, pero el navegador no dejó confirmar que llegaron. Si quieres estar seguro, pídele al administrador que revise la hoja.'
+      : 'Quedaron guardadas. Si necesitas corregir algo, vuelve a llenar el registro: se toma tu última respuesta del sprint.'}</p>
+    <div class="acciones"><span></span><button class="sec" id="otra">Empezar un registro nuevo</button></div>`;
+  $('#otra').onclick = empezar;
+}
+
+function pantallaRetomar(b) {
+  $('#app').innerHTML = `
+    <h1 tabindex="-1" style="margin-top:28px">Tienes un registro a medias</h1>
+    <p class="ayuda">${b.respuestas.nombre ? 'Lo empezó ' + esc(b.respuestas.nombre) + '. ' : ''}Puedes seguir donde ibas o empezar de nuevo.</p>
+    <div class="acciones columna">
+      <button class="pri" id="seguir">Seguir donde iba</button>
+      <button class="sec" id="nuevo">Empezar de nuevo</button>
+    </div>`;
+  $('#nuevo').onclick = () => { borrarBorrador(); empezar(); };
+  $('#seguir').onclick = () => {
+    respuestas = b.respuestas;
+    aproximadas = new Set(b.aproximadas || []);
+    idEnvio = b.idEnvio || nuevoId();
+    actual = b.actual;
+    volverARevision = false;
+    render();
+  };
+}
+
+function pantallaError(mensaje) {
+  $('#app').innerHTML = `
+    <h1 tabindex="-1" style="margin-top:28px">No se pudo cargar el registro</h1>
+    <p class="ayuda">${esc(mensaje)}</p>
+    <div class="acciones"><span></span><button class="pri" id="reintentar">Intentar de nuevo</button></div>`;
+  $('#reintentar').onclick = iniciar;
+}
+
+/* ================================================================ 6. DICTADO */
+
+function detenerDictado() {
+  if (escuchando && rec) rec.stop();
+}
+
+/**
+ * Escucha y pone lo dicho en el campo, que sigue siendo editable.
+ * Cada dictado queda amarrado a su pregunta: si la persona avanza antes de que
+ * termine, el resultado no cae en la pregunta siguiente.
+ */
+function dictar(q) {
   if (escuchando) { rec.stop(); return; }
+
+  const deEstaPregunta = () => actual === q.id;
+  const campo = $('#campo');
+  const base = q.tipo === 'texto' && !q.corto && campo.value.trim() ? campo.value.trim() + ' ' : '';
+  let final = '';
 
   rec = new SR();
   rec.lang = 'es-CO';
   rec.interimResults = true;
-  rec.continuous = p.tipo === 'texto';
-
-  let final = '';
+  rec.continuous = q.tipo === 'texto' && !q.corto;
   $('#error').textContent = '';
 
   rec.onstart = () => {
     escuchando = true;
+    if (!deEstaPregunta()) return;
     $('#btn-mic').classList.add('escuchando');
-    $('#btn-mic').setAttribute('aria-label', 'Detener dictado');
-    $('#estado').textContent = 'Escuchando… toca de nuevo para detener';
+    $('#btn-mic').setAttribute('aria-label', 'Detener el dictado');
+    $('#como').textContent = 'Escuchando… toca de nuevo para detener.';
   };
 
   rec.onresult = e => {
+    if (!deEstaPregunta()) return;
     let interino = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const t = e.results[i][0].transcript;
       if (e.results[i].isFinal) final += t + ' ';
       else interino += t;
     }
-    $('#transcripcion').textContent = '“' + (final + interino).trim() + '”';
-    if (p.tipo === 'numero') {
-      const n = aNumero(final + interino);
+    const dicho = (final + interino).trim();
+    if (q.tipo === 'texto' || q.tipo === 'nombre') $('#campo').value = base + dicho;
+    else $('#escuche').textContent = 'Escuché: “' + dicho + '”';
+    if (q.tipo === 'numero') {
+      const n = q.unidad === 'minutos' ? aMinutos(dicho) : aNumero(dicho);
       if (n !== null) $('#campo').value = n;
     }
   };
 
   rec.onerror = e => {
+    if (!deEstaPregunta()) return;
     const mensajes = {
       'not-allowed': 'El micrófono está bloqueado para esta página. Permítelo desde el ícono de la barra de direcciones, o escribe la respuesta.',
       'service-not-allowed': 'El micrófono está bloqueado para esta página. Permítelo desde el ícono de la barra de direcciones, o escribe la respuesta.',
       'no-speech': 'No se escuchó nada. Toca el micrófono e intenta de nuevo.',
       'audio-capture': 'No se encontró un micrófono conectado. Escribe la respuesta.',
-      'network': 'Se perdió la conexión con el servicio de dictado. Intenta de nuevo o escribe la respuesta.'
+      'network': 'Se perdió la conexión con el servicio de dictado. Intenta de nuevo o escribe la respuesta.',
+      'aborted': ''
     };
-    $('#error').textContent = mensajes[e.error] || `El dictado se detuvo (${e.error}). Intenta de nuevo o escribe la respuesta.`;
+    $('#error').textContent = e.error in mensajes ? mensajes[e.error] : `El dictado se detuvo (${e.error}). Intenta de nuevo o escribe la respuesta.`;
   };
 
   rec.onend = () => {
     escuchando = false;
+    if (!deEstaPregunta()) return;
     const btn = $('#btn-mic');
-    if (!btn) return;
     btn.classList.remove('escuchando');
-    btn.setAttribute('aria-label', 'Dictar respuesta');
-    $('#estado').textContent = 'Toca para dictar';
-
+    btn.setAttribute('aria-label', 'Dictar la respuesta');
+    $('#como').textContent = 'Toca el micrófono para dictar otra vez, o corrige escribiendo.';
     const dicho = final.trim();
-    if (!dicho) return;
-
-    if (p.tipo === 'numero') {
-      const n = aNumero(dicho);
-      if (n === null) {
-        $('#error').textContent = `No encontré un número en “${dicho}”. Intenta de nuevo o escríbelo.`;
-        return;
-      }
-      $('#campo').value = n;
-      if (esAproximado(dicho)) { aproximadas.add(p.id); mostrarAviso(p); }
-      else { aproximadas.delete(p.id); $('#aviso').innerHTML = ''; }
-    } else if (p.tipo === 'texto') {
-      const ta = $('#campo');
-      ta.value = (ta.value.trim() ? ta.value.trim() + ' ' : '') + dicho;
-    }
+    if (dicho) usarLoDicho(q, dicho);
   };
 
   rec.start();
 }
 
-function mostrarAviso(p) {
-  $('#aviso').innerHTML = `<div class="aviso">Lo dijiste como aproximado. Si es exacto, sigue; si no, revisa el dato antes de enviar, porque aquí se guarda como número exacto.</div>`;
+/** Convierte lo dicho según el tipo de pregunta. Si no lo entiende, lo dice y no inventa. */
+function usarLoDicho(q, dicho) {
+  const error = $('#error');
+  if (q.tipo === 'numero') {
+    const n = q.unidad === 'minutos' ? aMinutos(dicho) : aNumero(dicho);
+    if (n === null) { error.textContent = `No encontré un número en “${dicho}”. Intenta de nuevo o escríbelo.`; return; }
+    $('#campo').value = n;
+    if (q.unidad === 'minutos' && /\bhora/.test(normalizar(dicho))) $('#escuche').textContent = `Escuché: “${dicho}”. Lo guardo como ${n} minutos.`;
+    if (!q.aproximadoOk && esAproximado(dicho)) { aproximadas.add(q.id); mostrarAviso(); }
+    else { aproximadas.delete(q.id); $('#aviso').innerHTML = ''; }
+    return;
+  }
+  if (q.tipo === 'nombre') return buscarNombres($('#campo').value);
+  if (q.tipo === 'fecha') {
+    const f = aFecha(dicho);
+    if (f) { $('#campo').value = f; $('#escuche').textContent = `Escuché: “${dicho}”. Fecha: ${fechaBonita(f)}.`; }
+    else error.textContent = `No entendí la fecha en “${dicho}”. Elígela en el calendario.`;
+    return;
+  }
+  if (q.tipo === 'sino') {
+    const v = aSiNo(dicho);
+    if (v) elegir(q, v, true);
+    else error.textContent = `No entendí si es sí o no en “${dicho}”. Toca la opción.`;
+    return;
+  }
+  if (q.tipo === 'opcion' || q.tipo === 'catalogo') {
+    const v = elegirUna(dicho, opcionesDe(q), q.sinonimos);
+    if (v) elegir(q, v, true);
+    else error.textContent = `No reconocí una sola opción en “${dicho}”. Tócala en la lista.`;
+    return;
+  }
+  if (q.tipo === 'multiple') {
+    const encontradas = elegirVarias(dicho, opcionesDe(q), q.sinonimos);
+    if (!encontradas.length) { error.textContent = `No reconocí opciones en “${dicho}”. Márcalas en la lista.`; return; }
+    encontradas.forEach(o => { if (!seleccion.includes(o)) elegir(q, o, true); });
+  }
 }
 
-function enviar() {
+/* ================================================================ 7. BORRADOR Y ENVÍO */
+
+/*
+ * El registro a medias se guarda en este navegador, para no perderlo si se
+ * recarga la página o se bloquea el celular. Se borra al enviar.
+ */
+function guardarBorrador() {
+  try {
+    localStorage.setItem(CLAVE_BORRADOR, JSON.stringify({
+      version: CONFIG.version, respuestas, aproximadas: [...aproximadas], actual, idEnvio, guardado: Date.now()
+    }));
+  } catch (e) { /* sin borrador también funciona */ }
+}
+
+function leerBorrador() {
+  try {
+    const b = JSON.parse(localStorage.getItem(CLAVE_BORRADOR));
+    const vigente = b && b.version === CONFIG.version && Date.now() - b.guardado < DIAS_BORRADOR * 86400000;
+    if (vigente && b.respuestas && Object.keys(b.respuestas).length) return b;
+  } catch (e) { /* borrador dañado: se ignora */ }
+  return null;
+}
+
+function borrarBorrador() {
+  try { localStorage.removeItem(CLAVE_BORRADOR); } catch (e) { /* nada que borrar */ }
+}
+
+const nuevoId = () => (window.crypto && crypto.randomUUID)
+  ? crypto.randomUUID()
+  : Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+/** Solo viaja lo que la persona vio. Lo que no le aplicaba no se manda. */
+function armarEnvio() {
+  const r = {};
+  secuencia().forEach(q => { if (respondida(q)) r[q.id] = respuestas[q.id]; });
+  return {
+    idEnvio,
+    version: CONFIG.version,
+    respuestas: r,
+    aproximadas: [...aproximadas].filter(id => id in r && r[id] !== OMITIDA)
+  };
+}
+
+async function enviar() {
   const btn = $('#enviar');
   btn.disabled = true;
   btn.textContent = 'Enviando…';
-
-  const datos = { ...respuestas, aproximadas: [...aproximadas].map(id => PREGUNTAS.find(q => q.id === id).corta) };
-
-  const ok = () => { paso = 'listo'; render(); };
-  const fallo = e => {
+  try {
+    if (!URL_APPS_SCRIPT.startsWith('https://')) { await new Promise(ok => setTimeout(ok, 400)); return terminar(false); }
+    const r = await llamarServidor(armarEnvio());
+    if (!r.ok) throw new Error(r.error || 'El servidor no aceptó el envío.');
+    terminar(!!r.sinConfirmar);
+  } catch (e) {
     btn.disabled = false;
     btn.textContent = 'Enviar respuestas';
-    $('#error').textContent = 'No se pudo guardar: ' + (e && e.message ? e.message : e) + '. Intenta de nuevo.';
-  };
-
-  /* Dentro de Apps Script: llamada directa. */
-  if (typeof google !== 'undefined' && google.script) {
-    google.script.run.withSuccessHandler(ok).withFailureHandler(fallo).guardarRespuesta(datos);
-    return;
+    $('#error').textContent = 'No se pudo guardar: ' + e.message + ' Puedes intentar de nuevo sin miedo: no se duplica.';
   }
-  /* Fuera de Apps Script (GitHub Pages): se envía a la URL /exec.
-     Con mode 'no-cors' el navegador no deja leer la respuesta, así que
-     "enviado" significa que salió; la prueba real es ver la fila en la hoja. */
-  if (URL_APPS_SCRIPT.startsWith('https://')) {
-    fetch(URL_APPS_SCRIPT, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(datos)
-    }).then(ok).catch(fallo);
-    return;
-  }
-  setTimeout(ok, 500);   /* vista previa sin URL configurada: no se guarda */
 }
 
-render();
+/**
+ * Se manda como texto plano para que el navegador no pida permiso previo (Apps
+ * Script no sabe responder ese permiso). Así sí se puede leer la respuesta y
+ * saber si se guardó. Si el navegador igual bloquea la lectura, se manda a ciegas:
+ * no hay riesgo de duplicar, porque el servidor ignora un idEnvio que ya tiene.
+ */
+async function llamarServidor(datos) {
+  const opciones = { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(datos) };
+  let res;
+  try {
+    res = await fetch(URL_APPS_SCRIPT, opciones);
+  } catch (e) {
+    await fetch(URL_APPS_SCRIPT, { ...opciones, mode: 'no-cors' });
+    return { ok: true, sinConfirmar: true };
+  }
+  const texto = await res.text();
+  try { return JSON.parse(texto); }
+  catch (e) { throw new Error('El servidor respondió algo inesperado. Revisa que la implementación de Apps Script esté actualizada.'); }
+}
+
+function terminar(sinConfirmar) {
+  borrarBorrador();
+  actual = 'listo';
+  pantallaListo(sinConfirmar);
+}
+
+/* ================================================================ 8. ARRANQUE */
+
+async function cargarConfiguracion() {
+  if (!URL_APPS_SCRIPT.startsWith('https://')) {
+    throw new Error('Falta pegar la URL de Apps Script en la constante URL_APPS_SCRIPT, al inicio del código de esta página.');
+  }
+  let d;
+  try {
+    const res = await fetch(URL_APPS_SCRIPT + '?accion=config&t=' + Date.now());
+    d = await res.json();
+  } catch (e) {
+    throw new Error('No hubo respuesta de Apps Script. Revisa tu conexión y que la implementación tenga acceso para cualquier usuario.');
+  }
+  if (!d.ok) throw new Error(d.error || 'Apps Script no devolvió las preguntas.');
+  return d;
+}
+
+function empezar() {
+  respuestas = {};
+  aproximadas = new Set();
+  volverARevision = false;
+  idEnvio = nuevoId();
+  actual = secuencia()[0].id;
+  render();
+}
+
+async function iniciar() {
+  $('#app').innerHTML = '<p class="cargando">Cargando el registro…</p>';
+  try {
+    CONFIG = await cargarConfiguracion();
+  } catch (e) {
+    return pantallaError(e.message);
+  }
+  prepararPreguntas();
+  const borrador = leerBorrador();
+  if (borrador) return pantallaRetomar(borrador);
+  empezar();
+}
+
+iniciar();
 </script>
 </body>
 </html>
