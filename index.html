@@ -40,28 +40,25 @@
 
   h1 { font: 600 clamp(24px, 5vw, 32px)/1.2 Archivo, sans-serif; letter-spacing: -0.02em; margin: 6px 0 8px; }
   h1:focus { outline: none; }
+  h2 { font: 600 20px Archivo, sans-serif; margin: 28px 0 0; }
   .ayuda { color: var(--gris); margin: 0 0 22px; }
   .intro { margin: 0 0 18px; padding: 12px 14px; border-left: 3px solid var(--naranja); background: var(--papel); color: var(--gris); font-size: 15px; }
 
   .tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: 16px; padding: 22px; }
   .etiqueta { display: block; font-size: 14px; color: var(--gris); margin: 0 0 8px; }
 
-  /* ---- campos: se escribe aquí, y el micrófono va al lado ---- */
+  /* ---- campos de una sola respuesta ---- */
   .entrada { display: flex; align-items: center; gap: 12px; }
   .entrada input { flex: 1; min-width: 0; }
-  .campo-num {
-    font: 600 48px/1.1 Archivo, sans-serif; padding: 4px 0;
-    border: 0; border-bottom: 2px solid var(--linea); background: transparent; color: var(--tinta);
-  }
-  .campo-num:focus { outline: none; border-bottom-color: var(--naranja); }
-  .unidad { color: var(--gris); font-size: 18px; }
   .campo-texto, textarea {
     width: 100%; font: inherit; padding: 12px 14px; background: #fff;
     border: 1px solid var(--linea); border-radius: 10px; color: var(--tinta);
   }
   textarea { min-height: 140px; resize: vertical; display: block; }
   .pie-texto { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .como { color: var(--gris); font-size: 14px; margin: 12px 0 0; }
 
+  /* ---- micrófono: solo en las preguntas abiertas ---- */
   .btn-mic {
     width: 52px; height: 52px; flex: none; border: 0; border-radius: 50%;
     background: var(--naranja); color: #fff; cursor: pointer; position: relative;
@@ -76,11 +73,27 @@
   @keyframes pulso { from { transform: scale(1); opacity: .9; } to { transform: scale(1.3); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .btn-mic.escuchando::after { animation: none; } .barra i { transition: none; } }
 
-  .como { color: var(--gris); font-size: 14px; margin: 12px 0 0; }
-  .voz { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--linea); }
-  .voz .como { margin: 0; }
-  .escuche { color: var(--gris); font-style: italic; font-size: 15px; margin-top: 10px; min-height: 0; }
-  .escuche:empty { display: none; }
+  /* ---- pantalla de cifras: todas las de una sección juntas ---- */
+  .cifras { list-style: none; margin: 0; padding: 0; }
+  .cifras li { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+  .cifras li:first-child { padding-top: 0; }
+  .cifras li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .cifras label { font-weight: 500; }
+  .cifras label small { display: block; font-weight: 400; color: var(--gris); font-size: 13px; margin-top: 2px; }
+  .cifra-campo { display: flex; align-items: center; gap: 8px; }
+  .cifra-campo input {
+    width: 92px; font: 600 24px Archivo, sans-serif; text-align: right; padding: 8px 10px;
+    border: 1px solid var(--linea); border-radius: 10px; background: #fff; color: var(--tinta);
+  }
+  .cifra-campo input[aria-invalid="true"] { border-color: var(--error); }
+  .unidad { color: var(--gris); font-size: 15px; }
+  .aviso-cifra, .error-cifra { grid-column: 1 / -1; margin: 0; font-size: 13px; }
+  .aviso-cifra { color: var(--naranja-texto); }
+  .error-cifra { color: var(--error); }
+  .aviso-cifra:empty, .error-cifra:empty { display: none; }
+  .calculo { margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--linea); color: var(--gris); }
+  .calculo:empty { display: none; }
+  .calculo b { color: var(--tinta); font: 600 18px Archivo, sans-serif; }
 
   /* ---- opciones: una sola (redondas) o varias (cuadradas) ---- */
   .opciones { display: grid; gap: 10px; }
@@ -109,18 +122,33 @@
   .sugerencia { display: block; width: 100%; text-align: left; font: 500 16px Inter, sans-serif; padding: 10px 14px; margin-top: 6px; background: #fff; border: 1px solid var(--linea); border-radius: 10px; cursor: pointer; color: var(--tinta); }
   .sugerencia:hover { border-color: var(--naranja); }
 
-  .aviso { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: var(--aviso-fondo); color: var(--naranja-texto); font-size: 14px; }
+  /* ---- lo que recuerda este equipo ---- */
+  .recuerdo { list-style: none; margin: 0; padding: 0; }
+  .recuerdo li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--linea); }
+  .recuerdo li:first-child { padding-top: 0; }
+  .recuerdo li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .recuerdo span { color: var(--gris); font-size: 14px; }
+  .recuerdo b { font: 600 17px Archivo, sans-serif; text-align: right; }
+  .vistazo { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+  .vistazo-cifra { background: var(--papel); border: 1px solid var(--linea); border-left: 3px solid var(--naranja); border-radius: 12px; padding: 14px 16px; }
+  .vistazo-cifra span { font-size: 13px; color: var(--gris); }
+  .vistazo-cifra b { display: block; font: 600 28px/1.15 Archivo, sans-serif; margin: 2px 0; }
+  .vistazo-cifra small { display: block; color: var(--gris); font-size: 13px; }
+  .vistazo-cifra .antes { color: var(--naranja-texto); margin-top: 6px; }
+  .pie { margin-top: 22px; font-size: 14px; color: var(--gris); }
+
   .error { color: var(--error); font-size: 14px; margin-top: 10px; }
   .error:empty { margin-top: 0; }
 
   .acciones { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
   .acciones-der { display: flex; gap: 10px; margin-left: auto; }
+  .acciones.columna { flex-direction: column; align-items: stretch; max-width: 320px; }
   .pri, .sec { font: 600 16px Inter, sans-serif; padding: 12px 20px; border-radius: 10px; cursor: pointer; }
   .pri { background: var(--tinta); color: #fff; border: 0; }
   .pri:disabled { opacity: .45; cursor: default; }
   .sec { background: transparent; color: var(--tinta); border: 1px solid var(--linea); }
+  .enlace { background: none; border: 0; padding: 0; font: inherit; color: var(--naranja-texto); text-decoration: underline; cursor: pointer; }
   .invisible { visibility: hidden; }
-  .acciones.columna { flex-direction: column; align-items: stretch; max-width: 320px; }
 
   button:focus-visible, textarea:focus-visible, input:focus-visible {
     outline: 3px solid var(--naranja); outline-offset: 2px;
@@ -160,20 +188,23 @@
 const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbybmLaDe3oMECKpP3ewOY3foIxBp2PX_fxsF8SgcoohRuat1LxbXX-UT-ovF4R7NSzL/exec';
 
 const CLAVE_BORRADOR = 'registro-sprint-borrador';
+const CLAVE_MEMORIA = 'registro-sprint-memoria';
 const DIAS_BORRADOR = 14;          // un registro a medias se ofrece para retomar durante 14 días
 const OMITIDA = '(omitida)';       // igual que en Código.gs
 
 /* ================================================================ 1. ESTADO */
 
-let CONFIG = null;            // lo que manda Apps Script: listas y preguntas
+let CONFIG = null;            // lo que manda Apps Script: listas, preguntas y cifras clave
 let PREGUNTAS = [];           // todas las preguntas en orden; cada una sabe en qué grupo está
 let POR_ID = {};
 let respuestas = {};          // { idPregunta: valor }
-let aproximadas = new Set();  // preguntas que la persona dijo como "como 10", "unos 12"
-let actual = null;            // id de la pregunta en pantalla, o 'revision' / 'listo'
+let actual = null;            // id de la primera pregunta de la pantalla, o 'confirmar' / 'revision' / 'listo'
 let volverARevision = false;  // true cuando se entró a cambiar algo desde la revisión
 let idEnvio = null;           // identifica este registro; si se reenvía, el servidor no lo duplica
 let seleccion = null;         // lo marcado en la pantalla actual, en preguntas de opciones
+let confirmadas = new Set();  // datos que la persona confirmó con "Sí, sigo igual": no se vuelven a preguntar
+let memoriaOfrecida = '';     // a qué nombre ya se le ofreció usar lo recordado
+let enfocar = null;           // en una pantalla de cifras, qué campo enfocar al abrirla
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
@@ -184,172 +215,108 @@ const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-/* ================================================================ 2. DE LO DICHO A UN DATO */
-
 function normalizar(t) {
   return String(t ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-const PALABRAS = {
-  cero: 0, ninguno: 0, ninguna: 0, nada: 0,
-  un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7,
-  ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15,
-  dieciseis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19, veinte: 20,
-  veintiuno: 21, veintiun: 21, veintidos: 22, veintitres: 23, veinticuatro: 24,
-  veinticinco: 25, veintiseis: 26, veintisiete: 27, veintiocho: 28, veintinueve: 29,
-  treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70,
-  ochenta: 80, noventa: 90, cien: 100, ciento: 100, doscientos: 200, trescientos: 300,
-  cuatrocientos: 400, quinientos: 500, seiscientos: 600, setecientos: 700,
-  ochocientos: 800, novecientos: 900
-};
+/* ================================================================ 2. LO QUE RECUERDA ESTE EQUIPO */
 
-/** "catorce" → 14, "treinta y cuatro" → 34, "como 12" → 12. Devuelve null si no hay número. */
-function aNumero(texto) {
-  const t = normalizar(texto);
-  const digitos = t.match(/\d+/);
-  if (digitos) return parseInt(digitos[0], 10);
+/*
+ * Al enviar, este navegador guarda una copia de lo que la persona respondió.
+ * El sprint siguiente, en este mismo celular o computador, sirve para:
+ *   · prellenar sus datos (sección, líder, célula, rol, frentes, herramientas de IA),
+ *   · avisarle si una cifra se ve muy distinta a la del sprint anterior,
+ *   · mostrarle al final su sprint comparado con el anterior.
+ * Nada de esto viaja al servidor ni se le muestra a otra persona. Es a propósito:
+ * la página no tiene login, y si el servidor devolviera respuestas viejas a quien
+ * escriba un nombre, cualquiera podría ver las cifras de cualquier compañero.
+ */
+const SE_CONFIRMAN = ['seccion', 'lider', 'celula', 'rol'];
+const SE_PRESELECCIONAN = ['frentes', 'ia_uso', 'ia_herramientas', 'ia_actividades'];
 
-  let total = null;
-  for (const p of t.split(/[^a-z]+/)) {
-    if (p in PALABRAS) total = (total || 0) + PALABRAS[p];
-    else if (p === 'y' && total !== null) continue;
-    else if (total !== null) break;
-  }
-  return total;
+const claveNombre = n => normalizar(n).replace(/\s+/g, ' ').trim();
+const claveSprint = r => (r.seccion || '') + ' / ' + (r.sprint || '');
+
+function leerMemorias() {
+  try { return JSON.parse(localStorage.getItem(CLAVE_MEMORIA)) || {}; } catch (e) { return {}; }
 }
 
-/** Para preguntas en minutos: "hora y media" → 90, "dos horas" → 120, "45" → 45. */
-function aMinutos(texto) {
-  const t = normalizar(texto);
-  const m = t.match(/^(.*?)\bhoras?\b(.*)$/);
-  if (!m) return aNumero(t);
-  const antes = m[1], despues = m[2];
-  if (/\bmedia\s*$/.test(antes) && aNumero(antes.replace(/\bmedia\s*$/, '')) === null) return 30;
-  let horas = aNumero(antes);
-  if (horas === null) horas = 1;                       // "hora y media": una hora y media
-  let minutos = 0;
-  if (/\bmedia\b/.test(despues)) minutos = 30;
-  else if (/\bcuarto\b/.test(despues)) minutos = 15;
-  else { const n = aNumero(despues); if (n !== null) minutos = n; }
-  return horas * 60 + minutos;
+function memoriaDe(nombre) {
+  return nombre ? leerMemorias()[claveNombre(nombre)] || null : null;
 }
 
-/** Detecta si la persona dijo un número aproximado: "como catorce", "unos doce"… */
-function esAproximado(texto) {
-  return /\b(como|mas o menos|aproximadamente|creo|unos|unas|alrededor|cerca de|casi)\b/
-    .test(normalizar(texto));
+/** Las respuestas del último sprint DISTINTO al actual: si se corrige un envío, no se compara consigo mismo. */
+function referencia(m, sprint) {
+  if (!m) return null;
+  if (m.ultima && claveSprint(m.ultima) !== sprint) return m.ultima;
+  return m.anterior || null;
 }
 
-const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
-  'septiembre', 'octubre', 'noviembre', 'diciembre'];
-
-/** "15 de octubre" → "2026-10-15". Sin año, toma el más cercano que tenga sentido. */
-function aFecha(texto, hoy = new Date()) {
-  const t = normalizar(texto).replace(/\bsetiembre\b/, 'septiembre');
-  let m = t.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m) return armarFecha(+m[1], +m[2], +m[3]);
-  m = t.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) return armarFecha(+m[3], +m[2], +m[1]);
-
-  const mes = MESES.findIndex(n => new RegExp('\\b' + n + '\\b').test(t));
-  if (mes !== -1) {
-    const [antes, despues] = t.split(new RegExp('\\b' + MESES[mes] + '\\b'));
-    const dia = /\bprimero\b/.test(antes) ? 1 : aNumero(antes);
-    if (dia === null) return null;
-    const conAnio = despues.match(/\b(\d{4})\b/);
-    if (conAnio) return armarFecha(+conAnio[1], mes + 1, dia);
-    // Sin año: si la fecha ya pasó hace más de 3 meses, seguro es del año siguiente
-    const anio = hoy.getFullYear();
-    const pasados = (hoy - new Date(anio, mes, dia)) / 86400000;
-    return armarFecha(pasados > 90 ? anio + 1 : anio, mes + 1, dia);
-  }
-  if (/\bpasado manana\b/.test(t)) return iso(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 2));
-  if (/\bmanana\b/.test(t)) return iso(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1));
-  if (/\bhoy\b/.test(t)) return iso(hoy);
-  return null;
+function recordar(enviadas) {
+  try {
+    const todas = leerMemorias();
+    const k = claveNombre(enviadas.nombre);
+    const previa = todas[k];
+    let anterior = previa ? previa.anterior || null : null;
+    if (previa && previa.ultima && claveSprint(previa.ultima) !== claveSprint(enviadas)) anterior = previa.ultima;
+    todas[k] = { nombre: enviadas.nombre, ultima: enviadas, anterior, guardado: Date.now() };
+    // Máximo 5 personas por equipo, por si es un computador compartido
+    Object.keys(todas).sort((a, b) => todas[b].guardado - todas[a].guardado).slice(5).forEach(c => delete todas[c]);
+    localStorage.setItem(CLAVE_MEMORIA, JSON.stringify(todas));
+  } catch (e) { /* sin memoria también funciona */ }
 }
 
-function armarFecha(a, m, d) {
-  const f = new Date(a, m - 1, d);
-  if (f.getFullYear() !== a || f.getMonth() !== m - 1 || f.getDate() !== d) return null;  // 31 de febrero
-  return iso(f);
-}
-function iso(f) {
-  return f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0') + '-' + String(f.getDate()).padStart(2, '0');
-}
-
-/* ---- reconocer opciones en lo dicho ---- */
-
-const VACIAS = new Set(['de', 'del', 'la', 'las', 'el', 'los', 'y', 'e', 'o', 'u', 'en', 'con', 'por', 'para',
-  'a', 'al', 'un', 'una', 'unos', 'unas', 'que', 'mi', 'mis', 'me', 'se', 'lo', 'le', 'su', 'sus', 'es',
-  'fue', 'son', 'yo', 'soy', 'este', 'esta', 'eso', 'esa', 'use', 'hice', 'trabaje']);
-const DIGITO = { uno: '1', dos: '2', tres: '3', cuatro: '4', cinco: '5', seis: '6', siete: '7', ocho: '8',
-  nueve: '9', diez: '10', once: '11', doce: '12', trece: '13', catorce: '14', quince: '15', veinte: '20' };
-
-/** Quita el plural para que "pruebas" y "prueba" cuenten igual. */
-function raiz(p) {
-  if (p.length > 5 && /[dlnrjz]es$/.test(p)) return p.slice(0, -2);   // actividades → actividad
-  if (p.length > 3 && p.endsWith('s')) return p.slice(0, -1);         // pruebas → prueba
-  return p;
-}
-
-/** Palabras con significado de un texto: sin tildes, sin "de/la/el…", en singular, números en dígitos. */
-function claves(texto) {
-  return normalizar(texto).split(/[^a-z0-9]+/)
-    .filter(p => p && !VACIAS.has(p))
-    .map(p => DIGITO[p] || raiz(p));
+function olvidar(nombre) {
+  try {
+    const todas = leerMemorias();
+    delete todas[claveNombre(nombre)];
+    localStorage.setItem(CLAVE_MEMORIA, JSON.stringify(todas));
+  } catch (e) { /* nada que olvidar */ }
 }
 
 /**
- * Qué tanto se parece lo dicho a cada opción, de 0 a 1.
- * Solo cuentan las palabras que distinguen una opción de las demás: en
- * "Diseño de casos de prueba" y "Diseño de plan de pruebas", decir "diseño"
- * no ayuda a elegir, pero "casos" o "plan" sí.
+ * Qué datos recordados siguen sirviendo hoy. Sección, líder y célula van en
+ * cadena: si el líder ya no está activo, de ahí en adelante se pregunta de nuevo.
  */
-function puntajes(dicho, opciones, sinonimos = {}) {
-  const lista = claves(dicho);
-  const dichas = new Set(lista);
-  const frase = ' ' + lista.join(' ') + ' ';
-  const porOpcion = opciones.map(o => [...new Set(claves(o))]);
-  const veces = {};
-  porOpcion.forEach(ks => ks.forEach(k => { veces[k] = (veces[k] || 0) + 1; }));
+function datosRecordados(m) {
+  const u = m && m.ultima;
+  if (!u) return [];
+  const copia = { ...respuestas };
+  const sirven = [];
+  for (const id of ['seccion', 'lider', 'celula']) {
+    if (u[id] === undefined || u[id] === OMITIDA) break;
+    respuestas[id] = u[id];
+    if (!respondida(POR_ID[id])) break;
+    sirven.push(id);
+  }
+  respuestas.rol = u.rol;
+  if (u.rol && respondida(POR_ID.rol)) sirven.push('rol');
+  respuestas = copia;
+  return sirven;
+}
 
-  return opciones.map((o, i) => {
-    const todas = porOpcion[i];
-    let propias = todas.filter(k => veces[k] === 1);
-    if (!propias.length) propias = todas;
-    let p = propias.length ? propias.filter(k => dichas.has(k)).length / propias.length : 0;
-    const completa = claves(o).join(' ');
-    if (completa && frase.includes(' ' + completa + ' ')) p = 1 + completa.length / 1000;   // dijo la opción entera
-    (sinonimos[o] || []).forEach(s => {
-      const ks = claves(s);
-      if (ks.length && ks.every(k => dichas.has(k))) p = Math.max(p, 1);
-    });
-    return p;
+function aplicarRecuerdo(m, confirmar) {
+  const u = m.ultima;
+  datosRecordados(m).forEach(id => {
+    respuestas[id] = u[id];
+    if (confirmar) confirmadas.add(id);
+  });
+  // Frentes y herramientas cambian más seguido: salen ya marcados, pero la persona los ve y los ajusta
+  SE_PRESELECCIONAN.forEach(id => {
+    if (respuestas[id] === undefined && u[id] !== undefined && u[id] !== OMITIDA) respuestas[id] = u[id];
   });
 }
 
-/** Para opción única: la que mejor coincide, si es clara. Si hay empate, ninguna. */
-function elegirUna(dicho, opciones, sinonimos) {
-  const p = puntajes(dicho, opciones, sinonimos);
-  const max = Math.max(0, ...p);
-  if (max < 0.5 || p.filter(x => x === max).length > 1) return null;
-  return opciones[p.indexOf(max)];
+/** "El sprint pasado pusiste 8. ¿Seguro que son 80?" Solo avisa; no impide seguir. */
+function cifraRara(q, n, ref) {
+  const antes = ref ? ref[q.id] : undefined;
+  if (typeof antes !== 'number' || typeof n !== 'number') return '';
+  const muchoMas = n > Math.max(antes, 3) * 3;
+  const muchoMenos = antes >= 6 && n < antes / 3;
+  return muchoMas || muchoMenos ? `El sprint pasado pusiste ${antes}. ¿Seguro que son ${n}?` : '';
 }
 
-/** Para selección múltiple: todas las que se mencionaron. */
-function elegirVarias(dicho, opciones, sinonimos) {
-  const p = puntajes(dicho, opciones, sinonimos);
-  return opciones.filter((o, i) => p[i] > 0);
-}
-
-function aSiNo(dicho) {
-  for (const p of normalizar(dicho).split(/[^a-z]+/)) {
-    if (['si', 'claro', 'correcto', 'afirmativo', 'exacto', 'obvio', 'efectivamente', 'dale'].includes(p)) return 'Sí';
-    if (['no', 'negativo', 'nada', 'ninguno', 'ninguna', 'tampoco'].includes(p)) return 'No';
-  }
-  return null;
-}
+const referenciaActual = () => referencia(memoriaDe(respuestas.nombre), claveSprint(respuestas));
 
 /* ================================================================ 3. EL RECORRIDO: QUÉ SE PREGUNTA */
 
@@ -421,18 +388,41 @@ function secuencia() {
   return PREGUNTAS.filter(q => q.tipo !== 'calculada' && visible(q));
 }
 
+/**
+ * Las pantallas, en orden. Las cifras seguidas de una misma sección van juntas
+ * en una sola pantalla; lo demás va de a una pregunta. Si una cifra depende de
+ * otra de la misma pantalla, arranca pantalla nueva: hasta no tener la primera
+ * no se sabe si la segunda aplica.
+ */
+function pantallas() {
+  const lista = [];
+  for (const q of secuencia()) {
+    const ultima = lista[lista.length - 1];
+    const sigue = q.tipo === 'numero' && ultima && ultima.cifras && ultima.grupo === q.grupo &&
+      !(q.si && ultima.preguntas.some(x => x.id === q.si.pregunta));
+    if (sigue) ultima.preguntas.push(q);
+    else lista.push({ id: q.id, cifras: q.tipo === 'numero', grupo: q.grupo, preguntas: [q] });
+  }
+  return lista;
+}
+
+const indiceDe = (lista, id) => lista.findIndex(p => p.preguntas.some(q => q.id === id));
+const completa = p => p.preguntas.every(respondida);
+
 function siguienteDe(id) {
-  const sec = secuencia();
+  const lista = pantallas();
   if (volverARevision) {
     // Un cambio puede abrir preguntas nuevas (marcar otro frente, por ejemplo): esas van primero
-    const pendiente = sec.find(q => !respondida(q));
+    const pendiente = lista.find(p => !completa(p));
     if (pendiente) return pendiente.id;
     volverARevision = false;
     return 'revision';
   }
-  const i = sec.findIndex(q => q.id === id);
-  if (i === -1) { const p = sec.find(q => !respondida(q)); return p ? p.id : 'revision'; }
-  return i + 1 < sec.length ? sec[i + 1].id : 'revision';
+  let i = indiceDe(lista, id);
+  if (i === -1) { const p = lista.find(x => !completa(x)); return p ? p.id : 'revision'; }
+  // Lo confirmado con "Sí, sigo igual" no se vuelve a preguntar
+  do { i++; } while (i < lista.length && lista[i].preguntas.every(q => confirmadas.has(q.id) && respondida(q)));
+  return i < lista.length ? lista[i].id : 'revision';
 }
 
 /**
@@ -447,20 +437,21 @@ function puedeSaltar(q) {
 
 /* ================================================================ 4. VALIDAR */
 
-/** ['a', '-b', 100] = a − b + 100. Si falta un término, null: sin dato no se valida. */
-function sumaTerminos(terminos) {
+/** ['a', '-b', 100] = a − b + 100. valorDe(id) da cada respuesta; si falta una, null. */
+function sumar(terminos, valorDe) {
   let total = 0;
   for (const t of terminos) {
     if (typeof t === 'number') { total += t; continue; }
     const resta = t.startsWith('-');
-    const id = resta ? t.slice(1) : t;
-    const ref = POR_ID[id];
-    const v = respuestas[id];
-    if (!ref || !visible(ref) || typeof v !== 'number') return null;
+    const v = valorDe(resta ? t.slice(1) : t);
+    if (typeof v !== 'number') return null;
     total += resta ? -v : v;
   }
   return total;
 }
+
+/** Igual, con las respuestas actuales; las preguntas que ya no se ven no cuentan. */
+const sumaTerminos = terminos => sumar(terminos, id => (POR_ID[id] && visible(POR_ID[id]) ? respuestas[id] : undefined));
 
 /** "Calidad: HU comprometidas" → "HU comprometidas" */
 function etiqueta(q) {
@@ -478,6 +469,9 @@ function describirTope(terminos, tope) {
   });
   return `${tope} (${partes.join(' ')})`;
 }
+
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+  'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
 function fechaBonita(isoTexto) {
   const [a, m, d] = isoTexto.split('-').map(Number);
@@ -510,29 +504,53 @@ function validar(q, v) {
 
 function render() {
   detenerDictado();
-  if (actual === 'listo') return pantallaListo();
+  if (actual === 'listo') return;
+  if (actual === 'confirmar') return pantallaConfirmar(memoriaDe(respuestas.nombre));
   if (actual === 'revision') { pantallaRevision(); guardarBorrador(); return; }
 
-  const q = POR_ID[actual];
-  if (!q || q.tipo === 'calculada' || !visible(q)) {
-    // La pregunta dejó de aplicar (cambió el rol, por ejemplo): sigue con la primera pendiente
-    const p = secuencia().find(x => !respondida(x));
+  const lista = pantallas();
+  const i = indiceDe(lista, actual);
+  if (i === -1) {
+    // Esa pregunta dejó de aplicar (cambió el rol, por ejemplo): sigue con la primera pantalla pendiente
+    const p = lista.find(x => !completa(x));
     actual = p ? p.id : 'revision';
     return render();
   }
-  pantallaPregunta(q);
+  window.scrollTo(0, 0);          // primero arriba; después cada pantalla enfoca su campo, que se acomoda solo a la vista
+  if (lista[i].cifras) pantallaCifras(lista, i);
+  else pantallaPregunta(lista, i);
   guardarBorrador();
-  window.scrollTo(0, 0);
+}
+
+function progresoHtml(lista, i) {
+  const p = lista[i];
+  const delGrupo = lista.filter(x => x.grupo === p.grupo);
+  return `<div class="progreso">
+      <span class="grupo-nombre">${esc(p.grupo.titulo)}</span>
+      <div class="barra" aria-hidden="true"><i style="width:${(i / lista.length) * 100}%"></i></div>
+      ${delGrupo.length > 1 ? `<span class="cuenta">${delGrupo.indexOf(p) + 1} de ${delGrupo.length}</span>` : ''}
+    </div>
+    ${delGrupo[0] === p && p.grupo.intro ? `<p class="intro">${esc(p.grupo.intro)}</p>` : ''}`;
+}
+
+function accionesHtml(lista, i, conSaltar) {
+  const ultima = i === lista.length - 1;
+  return `<div class="acciones">
+      <button class="sec ${i === 0 && !volverARevision ? 'invisible' : ''}" id="atras">${volverARevision ? 'Volver a la revisión' : 'Atrás'}</button>
+      <div class="acciones-der">
+        ${conSaltar ? '<button class="sec" id="saltar">Saltar</button>' : ''}
+        <button class="pri" id="siguiente">${volverARevision ? 'Guardar cambio' : ultima ? 'Revisar respuestas' : 'Siguiente'}</button>
+      </div>
+    </div>`;
 }
 
 const MIC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`;
 const botonMic = () => SR ? `<button type="button" class="btn-mic" id="btn-mic" aria-label="Dictar la respuesta">${MIC}</button>` : '';
 
-function pantallaPregunta(q) {
-  const sec = secuencia();
-  const i = sec.indexOf(q);
-  const delGrupo = sec.filter(x => x.grupo === q.grupo);
-  const primeraDelGrupo = delGrupo[0] === q;
+/* ---- una pregunta por pantalla: nombre, opciones, fechas y texto ---- */
+
+function pantallaPregunta(lista, i) {
+  const q = lista[i].preguntas[0];
   const v = respuestas[q.id];
   const ops = esDeOpciones(q) ? opcionesDe(q) : [];
 
@@ -540,65 +558,42 @@ function pantallaPregunta(q) {
   else if (esDeOpciones(q)) seleccion = ops.includes(v) ? v : (q.tipo === 'catalogo' && ops.length === 1 ? ops[0] : null);
   else seleccion = null;
 
-  const ultima = i === sec.length - 1;
   $('#app').innerHTML = `
-    <div class="progreso">
-      <span class="grupo-nombre">${esc(q.grupo.titulo)}</span>
-      <div class="barra" aria-hidden="true"><i style="width:${(i / sec.length) * 100}%"></i></div>
-      <span class="cuenta">${delGrupo.indexOf(q) + 1} de ${delGrupo.length}</span>
-    </div>
-    ${primeraDelGrupo && q.grupo.intro ? `<p class="intro">${esc(q.grupo.intro)}</p>` : ''}
+    ${progresoHtml(lista, i)}
     <h1 id="titulo" tabindex="-1">${esc(q.texto)}</h1>
     ${q.ayuda ? `<p class="ayuda">${esc(q.ayuda)}</p>` : '<div style="height:14px"></div>'}
     <div class="tarjeta">
       ${campoHtml(q, v, ops)}
-      <div id="escuche" class="escuche"></div>
-      <div id="aviso"></div>
       <div class="error" id="error" role="alert"></div>
     </div>
-    <div class="acciones">
-      <button class="sec ${i === 0 && !volverARevision ? 'invisible' : ''}" id="atras">${volverARevision ? 'Volver a la revisión' : 'Atrás'}</button>
-      <div class="acciones-der">
-        ${puedeSaltar(q) ? '<button class="sec" id="saltar">Saltar</button>' : ''}
-        <button class="pri" id="siguiente">${volverARevision ? 'Guardar cambio' : ultima ? 'Revisar respuestas' : 'Siguiente'}</button>
-      </div>
-    </div>`;
+    ${accionesHtml(lista, i, puedeSaltar(q))}`;
   conectarPregunta(q);
 }
 
 function campoHtml(q, v, ops) {
   const valor = v === undefined || v === OMITIDA ? '' : v;
-  const como = SR
-    ? 'Escribe tu respuesta o toca el micrófono para dictarla.'
-    : 'Escribe tu respuesta. Para dictarla, abre esta página en Chrome.';
 
-  if (q.tipo === 'numero') {
-    return `<label class="etiqueta" for="campo">Tu respuesta</label>
-      <div class="entrada">
-        <input id="campo" class="campo-num" type="text" inputmode="numeric" autocomplete="off" value="${esc(valor)}">
-        ${q.unidad === 'minutos' ? '<span class="unidad">min</span>' : ''}
-        ${botonMic()}
-      </div>
-      <p class="como" id="como">${como}</p>`;
+  if (q.tipo === 'nombre') {
+    return `<label class="etiqueta" for="campo">Nombre completo</label>
+      <input id="campo" class="campo-texto" type="text" autocomplete="name" value="${esc(valor)}">
+      <div id="sugerencias" class="sugerencias" aria-live="polite"></div>`;
   }
-  if (q.tipo === 'nombre' || q.tipo === 'fecha' || (q.tipo === 'texto' && q.corto)) {
-    const tipo = q.tipo === 'fecha' ? 'date' : 'text';
-    const auto = q.tipo === 'nombre' ? 'name' : 'off';
-    return `<label class="etiqueta" for="campo">${q.tipo === 'nombre' ? 'Nombre completo' : 'Tu respuesta'}</label>
-      <div class="entrada">
-        <input id="campo" class="campo-texto" type="${tipo}" autocomplete="${auto}" value="${esc(valor)}">
-        ${botonMic()}
-      </div>
-      <p class="como" id="como">${q.tipo === 'fecha' && SR ? 'Elígela en el calendario o dila, por ejemplo “15 de octubre”.' : como}</p>
-      ${q.tipo === 'nombre' ? '<div id="sugerencias" class="sugerencias" aria-live="polite"></div>' : ''}`;
+  if (q.tipo === 'fecha') {
+    return `<label class="etiqueta" for="campo">Elige la fecha</label>
+      <input id="campo" class="campo-texto" type="date" value="${esc(valor)}">`;
   }
   if (q.tipo === 'texto') {
-    return `<label class="etiqueta" for="campo">Tu respuesta</label>
-      <textarea id="campo">${esc(valor)}</textarea>
-      <div class="pie-texto">${botonMic()}<p class="como" id="como" style="margin:0">${como}</p></div>`;
+    // Lo abierto es lo único que se dicta: contar algo hablando es más fácil que escribirlo
+    const como = SR ? 'Toca el micrófono y cuéntalo, o escríbelo.' : 'Escribe tu respuesta. Para dictarla, abre esta página en Chrome.';
+    return q.corto
+      ? `<label class="etiqueta" for="campo">Tu respuesta</label>
+        <div class="entrada"><input id="campo" class="campo-texto" type="text" autocomplete="off" value="${esc(valor)}">${botonMic()}</div>
+        <p class="como" id="como">${como}</p>`
+      : `<label class="etiqueta" for="campo">Tu respuesta</label>
+        <textarea id="campo">${esc(valor)}</textarea>
+        <div class="pie-texto">${botonMic()}<p class="como" id="como" style="margin:0">${como}</p></div>`;
   }
 
-  // Opciones: una sola, varias, o sí/no
   if (!ops.length) {
     return `<p class="vacio">Todavía no hay opciones registradas aquí. Avísale al administrador; mientras tanto, salta esta pregunta.</p>`;
   }
@@ -610,7 +605,7 @@ function campoHtml(q, v, ops) {
       <span class="marca-op" aria-hidden="true"></span><span>${esc(o)}</span>${extra ? `<small>${extra}</small>` : ''}</button>`;
   }).join('');
   return `<div class="opciones ${q.tipo === 'sino' ? 'sino' : ''}" role="${varias ? 'group' : 'radiogroup'}" aria-labelledby="titulo">${botones}</div>
-    ${SR ? `<div class="voz">${botonMic()}<p class="como" id="como">${varias ? 'Marca las que apliquen o dilas en voz alta.' : 'Toca una opción o dila en voz alta.'}</p></div>` : ''}`;
+    ${varias ? '<p class="como">Marca las que apliquen.</p>' : ''}`;
 }
 
 function conectarPregunta(q) {
@@ -619,13 +614,11 @@ function conectarPregunta(q) {
   if ($('#saltar')) $('#saltar').onclick = () => saltar(q);
   if ($('#btn-mic')) $('#btn-mic').onclick = () => dictar(q);
   $$('.opcion').forEach(b => b.onclick = () => elegir(q, b.dataset.valor));
-  if (aproximadas.has(q.id)) mostrarAviso();
 
   const campo = $('#campo');
   if (!campo) return;
   campo.addEventListener('input', () => {
     $('#error').textContent = '';
-    if (aproximadas.delete(q.id)) $('#aviso').innerHTML = '';   // si lo corrige a mano, ya no es aproximado
     if (q.tipo === 'nombre') buscarNombres(campo.value);
   });
   if (campo.tagName === 'INPUT') {
@@ -634,7 +627,7 @@ function conectarPregunta(q) {
 }
 
 /** Tocar una opción única la elige y avanza. En varias, marca o desmarca. */
-function elegir(q, valor, porVoz = false) {
+function elegir(q, valor) {
   if (q.tipo === 'multiple') {
     const ops = opcionesDe(q);
     seleccion = seleccion.includes(valor) ? seleccion.filter(x => x !== valor) : ops.filter(o => o === valor || seleccion.includes(o));
@@ -644,25 +637,19 @@ function elegir(q, valor, porVoz = false) {
   $$('.opcion').forEach(b => b.setAttribute('aria-checked',
     q.tipo === 'multiple' ? seleccion.includes(b.dataset.valor) : b.dataset.valor === seleccion));
   $('#error').textContent = '';
-  if (q.tipo !== 'multiple' && !porVoz) setTimeout(() => { if (actual === q.id) avanzar(q); }, 180);
+  if (q.tipo !== 'multiple') setTimeout(() => { if (actual === q.id) avanzar(q); }, 180);
 }
 
-/** Lo que hay en pantalla, ya convertido. Devuelve { valor } o { vacio: true } o { error }. */
+/** Lo que hay en pantalla. Devuelve { valor } o { vacio: true, error } o { error }. */
 function leerValor(q) {
   const campo = $('#campo');
-  if (q.tipo === 'numero') {
-    const t = campo.value.trim();
-    if (!t) return { vacio: true, error: 'Escribe o dicta un número para continuar.' };
-    if (!/^\d+$/.test(t)) return { error: 'Escribe solo el número, sin letras ni puntos. Por ejemplo: 14.' };
-    return { valor: parseInt(t, 10) };
-  }
   if (q.tipo === 'nombre' || q.tipo === 'texto') {
     const t = campo.value.trim();
     if (!t) return { vacio: true, error: q.tipo === 'nombre' ? 'Escribe tu nombre para continuar.' : 'Escribe o dicta tu respuesta para continuar.' };
     return { valor: q.tipo === 'nombre' ? t.replace(/\s+/g, ' ') : t };
   }
   if (q.tipo === 'fecha') {
-    if (!campo.value) return { vacio: true, error: 'Elige o dicta una fecha para continuar.' };
+    if (!campo.value) return { vacio: true, error: 'Elige una fecha para continuar.' };
     return { valor: campo.value };
   }
   if (q.tipo === 'multiple') {
@@ -680,26 +667,160 @@ function avanzar(q) {
   const error = validar(q, leido.valor);
   if (error) { $('#error').textContent = error; return; }
   respuestas[q.id] = leido.valor;
+
+  // Después del nombre: si este equipo recuerda a la persona, se le ofrece usar lo de la vez pasada
+  if (q.id === 'nombre' && memoriaOfrecida !== claveNombre(leido.valor)) {
+    memoriaOfrecida = claveNombre(leido.valor);
+    confirmadas.clear();
+    const m = memoriaDe(leido.valor);
+    if (m && datosRecordados(m).length && !volverARevision) { actual = 'confirmar'; return render(); }
+  }
   actual = siguienteDe(q.id);
   render();
 }
 
 function saltar(q) {
   respuestas[q.id] = OMITIDA;
-  aproximadas.delete(q.id);
   actual = siguienteDe(q.id);
   render();
 }
 
 function retroceder() {
   if (volverARevision) { volverARevision = false; actual = 'revision'; return render(); }
-  const sec = secuencia();
-  const i = sec.findIndex(q => q.id === actual);
-  if (i > 0) { actual = sec[i - 1].id; render(); }
+  const lista = pantallas();
+  const i = indiceDe(lista, actual);
+  if (i > 0) { actual = lista[i - 1].id; render(); }
 }
 
-function mostrarAviso() {
-  $('#aviso').innerHTML = '<div class="aviso">Lo dijiste como aproximado. Si es exacto, sigue; si no, revisa el dato, porque se guarda como número exacto.</div>';
+/* ---- las cifras de una sección, todas juntas ---- */
+
+function pantallaCifras(lista, i) {
+  const p = lista[i];
+  const ref = referenciaActual();
+  const saltables = p.preguntas.filter(puedeSaltar).length;
+  const todasSaltables = saltables === p.preguntas.length;
+
+  const filas = p.preguntas.map(q => {
+    const v = respuestas[q.id];
+    const notas = [q.ayuda, !todasSaltables && puedeSaltar(q) ? 'Opcional: puedes dejarla en blanco.' : ''].filter(Boolean);
+    return `<li>
+      <label for="c-${q.id}">${esc(q.texto)}${notas.map(n => `<small>${esc(n)}</small>`).join('')}</label>
+      <div class="cifra-campo">
+        <input id="c-${q.id}" data-id="${q.id}" type="text" inputmode="numeric" autocomplete="off"
+          value="${typeof v === 'number' ? v : ''}" aria-describedby="a-${q.id} e-${q.id}">
+        ${q.unidad === 'minutos' ? '<span class="unidad">min</span>' : ''}
+      </div>
+      <p class="aviso-cifra" id="a-${q.id}">${esc(cifraRara(q, v, ref))}</p>
+      <p class="error-cifra" id="e-${q.id}" role="alert"></p>
+    </li>`;
+  }).join('');
+
+  $('#app').innerHTML = `
+    ${progresoHtml(lista, i)}
+    <h1 id="titulo" tabindex="-1">${esc(p.grupo.titulo)}</h1>
+    <p class="ayuda">${p.preguntas.length > 1 ? 'Escribe las cifras de este sprint.' : 'Escribe la cifra de este sprint.'}${todasSaltables ? ' Las que no sepas, déjalas en blanco.' : ''}</p>
+    <div class="tarjeta">
+      <ol class="cifras">${filas}</ol>
+      <div class="calculo" id="calculo"></div>
+    </div>
+    ${accionesHtml(lista, i, false)}`;
+
+  $('#atras').onclick = retroceder;
+  $('#siguiente').onclick = () => avanzarCifras(p);
+  const campos = $$('.cifra-campo input');
+  campos.forEach((c, k) => {
+    c.addEventListener('input', () => {
+      $('#e-' + c.dataset.id).textContent = '';
+      c.removeAttribute('aria-invalid');
+      const n = /^\d+$/.test(c.value.trim()) ? parseInt(c.value, 10) : null;
+      $('#a-' + c.dataset.id).textContent = cifraRara(POR_ID[c.dataset.id], n, ref);
+      pintarCalculo(p);
+    });
+    // Enter pasa a la cifra siguiente; en la última, avanza
+    c.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (k + 1 < campos.length) campos[k + 1].focus(); else avanzarCifras(p);
+    });
+  });
+  pintarCalculo(p);
+
+  const destino = (enfocar && $('#c-' + enfocar)) || campos.find(c => !c.value) || null;
+  enfocar = null;
+  if (destino) destino.focus();
+}
+
+/** Lo que se calcula solo (como "se mantienen" en Madurez) se ve mientras se escribe. */
+function pintarCalculo(p) {
+  const calculadas = PREGUNTAS.filter(q => q.tipo === 'calculada' && q.grupo === p.grupo && visible(q));
+  if (!calculadas.length) return;
+  const enPantalla = {};
+  p.preguntas.forEach(q => {
+    const t = $('#c-' + q.id).value.trim();
+    if (/^\d+$/.test(t)) enPantalla[q.id] = parseInt(t, 10);
+  });
+  $('#calculo').innerHTML = calculadas.map(q => {
+    const n = sumar(q.calculada, id => id in enPantalla ? enPantalla[id] : respuestas[id]);
+    return n === null || n < 0 ? '' : `<p style="margin:0">${esc(q.texto)}: <b>${n}</b> <span>(se calcula solo)</span></p>`;
+  }).join('');
+}
+
+function avanzarCifras(p) {
+  const nuevos = {};
+  let primero = null;
+  const marcar = (q, texto) => {
+    $('#e-' + q.id).textContent = texto;
+    $('#c-' + q.id).setAttribute('aria-invalid', 'true');
+    if (!primero) primero = q;
+  };
+  p.preguntas.forEach(q => {
+    $('#e-' + q.id).textContent = '';
+    $('#c-' + q.id).removeAttribute('aria-invalid');
+    const t = $('#c-' + q.id).value.trim();
+    if (!t) {
+      if (puedeSaltar(q)) nuevos[q.id] = OMITIDA;
+      else marcar(q, 'Falta esta cifra.');
+    } else if (!/^\d+$/.test(t)) {
+      marcar(q, 'Escribe solo el número, sin letras ni puntos.');
+    } else {
+      nuevos[q.id] = parseInt(t, 10);
+    }
+  });
+
+  // Los topes se revisan con las cifras nuevas: "certificadas" se compara con las "comprometidas" de esta misma pantalla
+  if (!primero) {
+    const antes = { ...respuestas };
+    Object.assign(respuestas, nuevos);
+    p.preguntas.forEach(q => { const e = validar(q, respuestas[q.id]); if (e) marcar(q, e); });
+    if (primero) respuestas = antes;
+  }
+  if (primero) { $('#c-' + primero.id).focus(); return; }
+
+  actual = siguienteDe(p.id);
+  render();
+}
+
+/* ---- "¿Sigues igual que el sprint pasado?" ---- */
+
+function pantallaConfirmar(m) {
+  const ids = datosRecordados(m);
+  if (!m || !ids.length) { actual = siguienteDe('nombre'); return render(); }
+  $('#app').innerHTML = `
+    <div class="progreso"><span class="grupo-nombre">Tus datos</span>
+      <div class="barra" aria-hidden="true"><i style="width:4%"></i></div></div>
+    <h1 id="titulo" tabindex="-1">¿Sigues igual que el sprint pasado?</h1>
+    <p class="ayuda">Este equipo recuerda lo que respondiste la última vez.</p>
+    <div class="tarjeta"><ul class="recuerdo">${ids.map(id =>
+      `<li><span>${esc(etiqueta(POR_ID[id]))}</span><b>${esc(m.ultima[id])}</b></li>`).join('')}</ul></div>
+    <div class="acciones">
+      <button class="sec" id="cambio">Cambió algo</button>
+      <div class="acciones-der"><button class="pri" id="igual">Sí, sigo igual</button></div>
+    </div>
+    <p class="pie"><button class="enlace" id="cero">Prefiero llenarlo desde cero</button></p>`;
+  $('#igual').onclick = () => { aplicarRecuerdo(m, true); actual = siguienteDe('nombre'); render(); };
+  $('#cambio').onclick = () => { aplicarRecuerdo(m, false); actual = siguienteDe('nombre'); render(); };
+  $('#cero').onclick = () => { actual = siguienteDe('nombre'); render(); };
+  guardarBorrador();
 }
 
 /* ---- sugerencias de nombre ---- */
@@ -747,6 +868,7 @@ function pantallaRevision() {
     g.items.push(q);
   });
 
+  const ref = referenciaActual();
   let pendientes = 0, errores = 0;
   const fila = q => {
     const nombre = esc(mayuscula(etiqueta(q)));
@@ -763,11 +885,12 @@ function pantallaRevision() {
     const v = respuestas[q.id];
     const error = validar(q, v);
     if (error) errores++;
+    const rara = q.tipo === 'numero' ? cifraRara(q, v, ref) : '';
     const clase = v === OMITIDA ? 'saltada' : (Array.isArray(v) || (q.tipo === 'texto' && !q.corto) ? 'texto' : '');
     return `<li><div>
         <div class="q">${nombre}</div>
         <div class="v ${clase}">${esc(mostrarValor(q, v))}</div>
-        ${aproximadas.has(q.id) && v !== OMITIDA ? '<span class="aprox">Lo dijiste como aproximado</span>' : ''}
+        ${rara ? `<span class="aprox">Muy distinta al sprint pasado (${ref[q.id]})</span>` : ''}
         ${error ? `<span class="error-rev">${esc(error)}</span>` : ''}
       </div><button class="cambiar" data-id="${q.id}">Cambiar</button></li>`;
   };
@@ -778,7 +901,7 @@ function pantallaRevision() {
 
   $('#app').innerHTML = `
     <div class="progreso"><span class="grupo-nombre">Revisión</span>
-      <div class="barra"><i style="width:100%"></i></div></div>
+      <div class="barra" aria-hidden="true"><i style="width:100%"></i></div></div>
     <h1 tabindex="-1">Revisa antes de enviar</h1>
     <p class="ayuda">Esto es lo que se va a guardar. Puedes cambiar cualquier respuesta.</p>
     <div class="tarjeta">${cuerpo}</div>
@@ -789,22 +912,55 @@ function pantallaRevision() {
     </div>
     ${URL_APPS_SCRIPT.startsWith('https://') ? '' : '<p class="vista-previa">Vista previa: falta pegar la URL de Apps Script, así que las respuestas no se guardan.</p>'}`;
 
-  $$('.cambiar').forEach(b => b.onclick = () => { actual = b.dataset.id; volverARevision = true; render(); });
-  $('#atras').onclick = () => { const s = secuencia(); actual = s[s.length - 1].id; render(); };
+  $$('.cambiar').forEach(b => b.onclick = () => {
+    actual = b.dataset.id;
+    enfocar = b.dataset.id;
+    volverARevision = true;
+    render();
+  });
+  $('#atras').onclick = () => { const l = pantallas(); actual = l[l.length - 1].id; render(); };
   $('#enviar').onclick = enviar;
   window.scrollTo(0, 0);
 }
 
-function pantallaListo(sinConfirmar) {
+/* ---- al terminar: "Tu sprint en un vistazo" ---- */
+
+function vistazoHtml(enviadas, ref) {
+  const reglas = (CONFIG.cifrasClave || {})[enviadas.rol] || [];
+  const de = r => id => (r && typeof r[id] === 'number' ? r[id] : undefined);
+  const tarjetas = reglas.map(c => {
+    const parte = sumar(c.parte, de(enviadas));
+    const total = de(enviadas)(c.total);
+    if (parte === null || total === undefined) return '';
+    let antes = '';
+    if (ref && ref.rol === enviadas.rol) {
+      const p2 = sumar(c.parte, de(ref)), t2 = de(ref)(c.total);
+      if (p2 !== null && t2 !== undefined) antes = `El sprint pasado: ${p2} de ${t2}`;
+    }
+    return `<div class="vistazo-cifra"><span>${esc(c.titulo)}</span><b>${parte} de ${total}</b>
+      <small>${esc(c.nota)}</small>${antes ? `<small class="antes">${antes}</small>` : ''}</div>`;
+  }).filter(Boolean);
+  return tarjetas.length ? `<h2>Tu sprint en un vistazo</h2><div class="vistazo">${tarjetas.join('')}</div>` : '';
+}
+
+function pantallaListo(sinConfirmar, enviadas, ref) {
+  actual = 'listo';
   $('#app').innerHTML = `
     <div class="progreso"><span class="grupo-nombre">Listo</span>
-      <div class="barra"><i style="width:100%"></i></div></div>
+      <div class="barra" aria-hidden="true"><i style="width:100%"></i></div></div>
     <h1 tabindex="-1">Respuestas enviadas</h1>
-    <p class="ayuda">${sinConfirmar
+    <p class="ayuda" style="margin-bottom:0">${sinConfirmar
       ? 'Salieron, pero el navegador no dejó confirmar que llegaron. Si quieres estar seguro, pídele al administrador que revise la hoja.'
       : 'Quedaron guardadas. Si necesitas corregir algo, vuelve a llenar el registro: se toma tu última respuesta del sprint.'}</p>
-    <div class="acciones"><span></span><button class="sec" id="otra">Empezar un registro nuevo</button></div>`;
+    ${enviadas ? vistazoHtml(enviadas, ref) : ''}
+    <div class="acciones"><span></span><button class="sec" id="otra">Empezar un registro nuevo</button></div>
+    ${enviadas ? `<p class="pie" id="pie-memoria">Este equipo recordará tus datos para la próxima vez.
+      <button class="enlace" id="olvidar">Olvidarlos</button></p>` : ''}`;
   $('#otra').onclick = empezar;
+  if ($('#olvidar')) $('#olvidar').onclick = () => {
+    olvidar(enviadas.nombre);
+    $('#pie-memoria').textContent = 'Listo: este equipo ya no recuerda tus datos.';
+  };
 }
 
 function pantallaRetomar(b) {
@@ -818,8 +974,9 @@ function pantallaRetomar(b) {
   $('#nuevo').onclick = () => { borrarBorrador(); empezar(); };
   $('#seguir').onclick = () => {
     respuestas = b.respuestas;
-    aproximadas = new Set(b.aproximadas || []);
     idEnvio = b.idEnvio || nuevoId();
+    confirmadas = new Set(b.confirmadas || []);
+    memoriaOfrecida = b.memoriaOfrecida || '';
     actual = b.actual;
     volverARevision = false;
     render();
@@ -834,14 +991,15 @@ function pantallaError(mensaje) {
   $('#reintentar').onclick = iniciar;
 }
 
-/* ================================================================ 6. DICTADO */
+/* ================================================================ 6. DICTADO (solo en las preguntas abiertas) */
 
 function detenerDictado() {
   if (escuchando && rec) rec.stop();
 }
 
 /**
- * Escucha y pone lo dicho en el campo, que sigue siendo editable.
+ * Lo dicho se va escribiendo en el campo, que sigue siendo editable.
+ * Si la persona ya había escrito algo, lo dictado se agrega al final.
  * Cada dictado queda amarrado a su pregunta: si la persona avanza antes de que
  * termine, el resultado no cae en la pregunta siguiente.
  */
@@ -850,13 +1008,13 @@ function dictar(q) {
 
   const deEstaPregunta = () => actual === q.id;
   const campo = $('#campo');
-  const base = q.tipo === 'texto' && !q.corto && campo.value.trim() ? campo.value.trim() + ' ' : '';
+  const base = campo.value.trim() ? campo.value.trim() + ' ' : '';
   let final = '';
 
   rec = new SR();
   rec.lang = 'es-CO';
   rec.interimResults = true;
-  rec.continuous = q.tipo === 'texto' && !q.corto;
+  rec.continuous = !q.corto;
   $('#error').textContent = '';
 
   rec.onstart = () => {
@@ -875,13 +1033,7 @@ function dictar(q) {
       if (e.results[i].isFinal) final += t + ' ';
       else interino += t;
     }
-    const dicho = (final + interino).trim();
-    if (q.tipo === 'texto' || q.tipo === 'nombre') $('#campo').value = base + dicho;
-    else $('#escuche').textContent = 'Escuché: “' + dicho + '”';
-    if (q.tipo === 'numero') {
-      const n = q.unidad === 'minutos' ? aMinutos(dicho) : aNumero(dicho);
-      if (n !== null) $('#campo').value = n;
-    }
+    $('#campo').value = base + (final + interino).trim();
   };
 
   rec.onerror = e => {
@@ -900,53 +1052,12 @@ function dictar(q) {
   rec.onend = () => {
     escuchando = false;
     if (!deEstaPregunta()) return;
-    const btn = $('#btn-mic');
-    btn.classList.remove('escuchando');
-    btn.setAttribute('aria-label', 'Dictar la respuesta');
-    $('#como').textContent = 'Toca el micrófono para dictar otra vez, o corrige escribiendo.';
-    const dicho = final.trim();
-    if (dicho) usarLoDicho(q, dicho);
+    $('#btn-mic').classList.remove('escuchando');
+    $('#btn-mic').setAttribute('aria-label', 'Dictar la respuesta');
+    $('#como').textContent = 'Toca el micrófono para seguir contando, o corrige escribiendo.';
   };
 
   rec.start();
-}
-
-/** Convierte lo dicho según el tipo de pregunta. Si no lo entiende, lo dice y no inventa. */
-function usarLoDicho(q, dicho) {
-  const error = $('#error');
-  if (q.tipo === 'numero') {
-    const n = q.unidad === 'minutos' ? aMinutos(dicho) : aNumero(dicho);
-    if (n === null) { error.textContent = `No encontré un número en “${dicho}”. Intenta de nuevo o escríbelo.`; return; }
-    $('#campo').value = n;
-    if (q.unidad === 'minutos' && /\bhora/.test(normalizar(dicho))) $('#escuche').textContent = `Escuché: “${dicho}”. Lo guardo como ${n} minutos.`;
-    if (!q.aproximadoOk && esAproximado(dicho)) { aproximadas.add(q.id); mostrarAviso(); }
-    else { aproximadas.delete(q.id); $('#aviso').innerHTML = ''; }
-    return;
-  }
-  if (q.tipo === 'nombre') return buscarNombres($('#campo').value);
-  if (q.tipo === 'fecha') {
-    const f = aFecha(dicho);
-    if (f) { $('#campo').value = f; $('#escuche').textContent = `Escuché: “${dicho}”. Fecha: ${fechaBonita(f)}.`; }
-    else error.textContent = `No entendí la fecha en “${dicho}”. Elígela en el calendario.`;
-    return;
-  }
-  if (q.tipo === 'sino') {
-    const v = aSiNo(dicho);
-    if (v) elegir(q, v, true);
-    else error.textContent = `No entendí si es sí o no en “${dicho}”. Toca la opción.`;
-    return;
-  }
-  if (q.tipo === 'opcion' || q.tipo === 'catalogo') {
-    const v = elegirUna(dicho, opcionesDe(q), q.sinonimos);
-    if (v) elegir(q, v, true);
-    else error.textContent = `No reconocí una sola opción en “${dicho}”. Tócala en la lista.`;
-    return;
-  }
-  if (q.tipo === 'multiple') {
-    const encontradas = elegirVarias(dicho, opcionesDe(q), q.sinonimos);
-    if (!encontradas.length) { error.textContent = `No reconocí opciones en “${dicho}”. Márcalas en la lista.`; return; }
-    encontradas.forEach(o => { if (!seleccion.includes(o)) elegir(q, o, true); });
-  }
 }
 
 /* ================================================================ 7. BORRADOR Y ENVÍO */
@@ -958,7 +1069,8 @@ function usarLoDicho(q, dicho) {
 function guardarBorrador() {
   try {
     localStorage.setItem(CLAVE_BORRADOR, JSON.stringify({
-      version: CONFIG.version, respuestas, aproximadas: [...aproximadas], actual, idEnvio, guardado: Date.now()
+      version: CONFIG.version, respuestas, actual, idEnvio,
+      confirmadas: [...confirmadas], memoriaOfrecida, guardado: Date.now()
     }));
   } catch (e) { /* sin borrador también funciona */ }
 }
@@ -984,23 +1096,19 @@ const nuevoId = () => (window.crypto && crypto.randomUUID)
 function armarEnvio() {
   const r = {};
   secuencia().forEach(q => { if (respondida(q)) r[q.id] = respuestas[q.id]; });
-  return {
-    idEnvio,
-    version: CONFIG.version,
-    respuestas: r,
-    aproximadas: [...aproximadas].filter(id => id in r && r[id] !== OMITIDA)
-  };
+  return { idEnvio, version: CONFIG.version, respuestas: r };
 }
 
 async function enviar() {
   const btn = $('#enviar');
   btn.disabled = true;
   btn.textContent = 'Enviando…';
+  const datos = armarEnvio();
   try {
-    if (!URL_APPS_SCRIPT.startsWith('https://')) { await new Promise(ok => setTimeout(ok, 400)); return terminar(false); }
-    const r = await llamarServidor(armarEnvio());
+    if (!URL_APPS_SCRIPT.startsWith('https://')) { await new Promise(ok => setTimeout(ok, 400)); return terminar(false, datos.respuestas); }
+    const r = await llamarServidor(datos);
     if (!r.ok) throw new Error(r.error || 'El servidor no aceptó el envío.');
-    terminar(!!r.sinConfirmar);
+    terminar(!!r.sinConfirmar, datos.respuestas);
   } catch (e) {
     btn.disabled = false;
     btn.textContent = 'Enviar respuestas';
@@ -1028,10 +1136,12 @@ async function llamarServidor(datos) {
   catch (e) { throw new Error('El servidor respondió algo inesperado. Revisa que la implementación de Apps Script esté actualizada.'); }
 }
 
-function terminar(sinConfirmar) {
+function terminar(sinConfirmar, enviadas) {
+  // La comparación se toma ANTES de recordar este envío; si no, se compararía consigo mismo
+  const ref = referencia(memoriaDe(enviadas.nombre), claveSprint(enviadas));
+  recordar(enviadas);
   borrarBorrador();
-  actual = 'listo';
-  pantallaListo(sinConfirmar);
+  pantallaListo(sinConfirmar, enviadas, ref);
 }
 
 /* ================================================================ 8. ARRANQUE */
@@ -1053,10 +1163,11 @@ async function cargarConfiguracion() {
 
 function empezar() {
   respuestas = {};
-  aproximadas = new Set();
   volverARevision = false;
+  confirmadas = new Set();
+  memoriaOfrecida = '';
   idEnvio = nuevoId();
-  actual = secuencia()[0].id;
+  actual = pantallas()[0].id;
   render();
 }
 
